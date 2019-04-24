@@ -79,6 +79,10 @@ Proxy := Object clone do(
 		cmdSender send(name, call message name, call evalArgs)
 		call delegateTo(wrapped)
 	)
+
+	asString := method(
+		call delegateTo(wrapped)
+	)
 )
 
 Context := Object clone do(
