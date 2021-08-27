@@ -46,7 +46,9 @@ function Coordination:mousemoved(x, y)
     end
 end
 
-function Coordination:mousereleased() self.inserting = false end
+function Coordination:mousereleased()
+    self.inserting = false
+end
 
 local function draw_label(logic_x, logic_y)
     local screenWidth = love.graphics.getWidth()
@@ -105,7 +107,13 @@ function Coordination:draw()
     end
 end
 
-function Coordination:mapToLogic(x, y) return graph_to_logic(x, y) end
+function Coordination:mapToLogic(x, y)
+    return graph_to_logic(x, y)
+end
+
+function Coordination:mapToGraph(logic_x, logic_y)
+    return logic_to_graph(logic_x, logic_y)
+end
 
 function Coordination:getValue(logic_x)
     local x = logic_to_graph(logic_x)
@@ -130,10 +138,16 @@ function Coordination:getRandomX()
     local points = self.points
     if points and #points >= 4 then
         local i = love.math.random(1, #points - 1)
-        if i % 2 == 0 then i = i - 1 end
+        if i % 2 == 0 then
+            i = i - 1
+        end
 
         return points[i]
     end
+end
+
+function Coordination:getRandomPoint()
+    return self:mapToLogic(self:getRandomX())
 end
 
 return Coordination
