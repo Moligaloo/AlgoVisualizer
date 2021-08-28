@@ -13,9 +13,9 @@ end
 
 local function randomShift(point)
     while true do
-        local nextPoint = point + love.math.random(-200, 200)
-        if coord:getValue(nextPoint) then
-            return nextPoint
+        local newPoint = point + love.math.random(-200, 200)
+        if coord:getValue(newPoint) then
+            return newPoint
         end
     end
 end
@@ -32,21 +32,32 @@ function love.load()
     simulated_annealing = Algorithm {
         step = function()
             point = coord:getRandomPoint()
-            yield()
-
             temperature = 1000
             while temperature > 1 do
-                temperature = cooldown(temperature)
-
                 local energy = getEnergy(point)
-                local nextPoint = randomShift(point)
-                local delta = getEnergy(nextPoint) - energy
-                if delta < 0 or
-                    (love.math.random() < math.exp(-delta / temperature)) then
-                    point = nextPoint
+                local newPoint = randomShift(point)
+                local newEnergy = getEnergy(newPoint)
+                local delta = newEnergy - energy
+                local probability = math.exp(-delta / temperature)
+                local transfered = false
+                if love.math.random() < probability then
+                    transfered = true
                 end
 
-                yield()
+                yield {
+                    point,
+                    newPoint,
+                    energy,
+                    newEnergy,
+                    delta,
+                    temperature,
+                    probability
+                }
+
+                temperature = cooldown(temperature)
+                if transfered then
+                    point = newPoint
+                end
             end
         end
     }
