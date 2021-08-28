@@ -7,7 +7,7 @@ local Algorithm = require 'algorithm'
 local yield = coroutine.yield
 local coord, sprites, label, point
 
-local function getEnergey(point)
+local function getEnergy(point)
     return -coord:getValue(point)
 end
 
@@ -38,9 +38,9 @@ function love.load()
             while temperature > 1 do
                 temperature = cooldown(temperature)
 
-                local energy = getEnergey(point)
+                local energy = getEnergy(point)
                 local nextPoint = randomShift(point)
-                local delta = getEnergey(nextPoint) - energy
+                local delta = getEnergy(nextPoint) - energy
                 if delta < 0 or
                     (love.math.random() < math.exp(-delta / temperature)) then
                     point = nextPoint
@@ -68,7 +68,6 @@ function love.load()
             y = 60,
             width = 100,
             onValueChanged = function(newValue)
-
             end
         },
         label,
