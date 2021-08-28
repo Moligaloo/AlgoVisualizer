@@ -5,7 +5,7 @@ local Label = require 'label'
 local Algorithm = require 'algorithm'
 
 local yield = coroutine.yield
-local coord, sprites, label, point, temperature
+local coord, sprites, label, point, temperature, simulated_annealing
 
 local function getEnergy(point)
     return coord:getValue(point)
@@ -29,7 +29,7 @@ function love.load()
     coord = Coordination()
     label = Label {x = 100, y = 100}
 
-    local simulated_annealing = Algorithm {
+    simulated_annealing = Algorithm {
         step = function()
             point = coord:getRandomPoint()
             yield()
@@ -51,28 +51,7 @@ function love.load()
         end
     }
 
-    sprites = {
-        coord,
-        Button {
-            text = 'Start',
-            x = 10,
-            y = 10,
-            width = 80,
-            height = 30,
-            onClick = function()
-                simulated_annealing:start()
-            end
-        },
-        Slider {
-            x = 10,
-            y = 60,
-            width = 100,
-            onValueChanged = function(newValue)
-            end
-        },
-        label,
-        simulated_annealing
-    }
+    sprites = {coord, label, simulated_annealing}
 end
 
 function love.mousepressed(x, y, button, istouch, presses)
@@ -105,6 +84,12 @@ end
 function love.update(dt)
     for _, sprite in ipairs(sprites) do
         sprite:update(dt)
+    end
+end
+
+function love.keyreleased(key)
+    if key == 'space' or key == 'return' then
+        simulated_annealing:start()
     end
 end
 
