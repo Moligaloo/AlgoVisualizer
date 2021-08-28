@@ -5,10 +5,10 @@ local Label = require 'label'
 local Algorithm = require 'algorithm'
 
 local yield = coroutine.yield
-local coord, sprites, label, point
+local coord, sprites, label, point, temperature
 
 local function getEnergy(point)
-    return -coord:getValue(point)
+    return coord:getValue(point)
 end
 
 local function randomShift(point)
@@ -32,9 +32,9 @@ function love.load()
     local simulated_annealing = Algorithm {
         step = function()
             point = coord:getRandomPoint()
-            yield(point)
+            yield()
 
-            local temperature = 1000
+            temperature = 1000
             while temperature > 1 do
                 temperature = cooldown(temperature)
 
@@ -46,7 +46,7 @@ function love.load()
                     point = nextPoint
                 end
 
-                yield(point)
+                yield()
             end
         end
     }
@@ -118,6 +118,12 @@ function love.draw()
         local middleY = love.graphics.getHeight() / 2
         love.graphics.setColor(1, 0, 0)
         love.graphics.line(x, middleY - 200, x, middleY + 200)
+    end
+
+    if temperature then
+        love.graphics.setColor(1, 0, 0)
+        love.graphics
+            .print(("Temperature: %.2f K"):format(temperature), 200, 10)
     end
 end
 

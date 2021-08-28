@@ -16,7 +16,7 @@ function Algorithm:start()
     self.state = RUNNING
     self.elapsed = 0
     self.tick = nil
-    self.step_co = coroutine.wrap(self.step)
+    self.step_co = coroutine.create(self.step)
 end
 
 function Algorithm:update(dt)
@@ -27,9 +27,10 @@ function Algorithm:update(dt)
         if tick ~= self.tick then
             self.tick = tick
 
-            local point = self.step_co()
-            if point == nil then
+            coroutine.resume(self.step_co)
+            if coroutine.status(self.step_co) == 'dead' then
                 self.state = DONE
+                self.step_co = nil
             end
         end
     end
