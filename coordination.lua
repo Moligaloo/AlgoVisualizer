@@ -17,9 +17,14 @@ function Coordination:initialize(config)
     Sprite.initialize(self, config)
     self.points = nil
     self.inserting = false
+    self.enabled = true
 end
 
 function Coordination:mousepressed(x, y)
+    if not self.enabled then
+        return
+    end
+
     self.points = {x, y}
     self.inserting = true
 

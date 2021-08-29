@@ -32,17 +32,47 @@ function Algorithm:update(dt)
             if newState == nil then
                 self.status = DONE
                 self.step_co = nil
+                local onComplete = self.onComplete
+                if onComplete then
+                    onComplete()
+                end
             else
                 table.insert(self.states, newState)
+                self.state_index = #self.states
             end
         end
     end
 end
 
-function Algorithm:getStateByProgress(progress)
+function Algorithm:draw()
+    local states, state_index, drawState = self.states, self.state_index,
+                                           self.drawState
+    if states and state_index then
+        local state = states[state_index]
+        if state then
+            drawState(state_index, state)
+        end
+    end
+end
+
+function Algorithm:left()
+    local state_index = self.state_index
+    if self.state_index > 1 then
+        self.state_index = self.state_index - 1
+    end
+end
+
+function Algorithm:right()
+    local state_index = self.state_index
+    if self.state_index < #self.states then
+        self.state_index = self.state_index + 1
+    end
+end
+
+function Algorithm:setProgress(progress)
     local states = self.states
     if states then
-        return states[math.floor(#states * progress)]
+        self.state_index = math.ceil(#states * progress)
     end
 end
 

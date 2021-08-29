@@ -5,7 +5,7 @@ local Label = require 'label'
 local Algorithm = require 'algorithm'
 
 local yield = coroutine.yield
-local coord, sprites, label, point, temperature, simulated_annealing
+local coord, sprites, label, simulated_annealing
 
 local function getEnergy(point)
     return coord:getValue(point)
@@ -31,8 +31,8 @@ function love.load()
 
     simulated_annealing = Algorithm {
         step = function()
-            point = coord:getRandomPoint()
-            temperature = 1000
+            local point = coord:getRandomPoint()
+            local temperature = 1000
             while temperature > 1 do
                 local energy = getEnergy(point)
                 local newPoint = randomShift(point)
@@ -49,9 +49,9 @@ function love.load()
                     newPoint,
                     energy,
                     newEnergy,
-                    delta,
                     temperature,
-                    probability
+                    probability,
+                    transfered
                 }
 
                 temperature = cooldown(temperature)
@@ -59,6 +59,46 @@ function love.load()
                     point = newPoint
                 end
             end
+        end,
+
+        drawState = function(state_index, state)
+            local point = state[1]
+            local newPoint = state[2]
+            local energy = state[3]
+            local newEnergy = state[4]
+            local delta = newEnergy - energy
+            local temperature = state[5]
+            local probability = state[6]
+            local transfered = state[7]
+
+            local x = coord:mapToGraph(point)
+            local middleY = love.graphics.getHeight() / 2
+            love.graphics.setColor(1, 0, 0)
+            love.graphics.line(x, middleY - 200, x, middleY + 200)
+
+            love.graphics.printf(([[
+Temperature: %.2fK
+point: %d -> %d 
+probability: %.2f%%
+energy: %.2f -> %.2f (%.2f)
+            ]]):format(temperature, point, newPoint, probability * 100, energy,
+                       newEnergy, delta), 10, 10, 300, 'left')
+        end,
+
+        onComplete = function()
+            local sliderWidth = 400
+            local slider = Slider {
+                x = (love.graphics.getWidth() - sliderWidth) / 2,
+                y = love.graphics.getHeight() - 30,
+                width = 400,
+                value = 1,
+                onValueChanged = function(progress)
+                    simulated_annealing:setProgress(progress)
+                end
+            }
+
+            coord.enabled = false
+            table.insert(sprites, slider)
         end
     }
 
@@ -101,6 +141,10 @@ end
 function love.keyreleased(key)
     if key == 'space' or key == 'return' then
         simulated_annealing:start()
+    elseif key == 'left' then
+        simulated_annealing:left()
+    elseif key == 'right' then
+        simulated_annealing:right()
     end
 end
 
@@ -109,17 +153,5 @@ function love.draw()
         sprite:draw()
     end
 
-    if point then
-        local x = coord:mapToGraph(point)
-        local middleY = love.graphics.getHeight() / 2
-        love.graphics.setColor(1, 0, 0)
-        love.graphics.line(x, middleY - 200, x, middleY + 200)
-    end
-
-    if temperature then
-        love.graphics.setColor(1, 0, 0)
-        love.graphics
-            .print(("Temperature: %.2f K"):format(temperature), 200, 10)
-    end
 end
 
