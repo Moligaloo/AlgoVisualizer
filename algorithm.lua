@@ -55,10 +55,19 @@ function Algorithm:draw()
     end
 end
 
+function Algorithm:notifyProgressChanged()
+    local onProgressChanged = self.onProgressChanged
+    if onProgressChanged then
+        local progress = (self.state_index - 1) / (#self.states - 1)
+        onProgressChanged(progress)
+    end
+end
+
 function Algorithm:left()
     local state_index = self.state_index
     if self.state_index > 1 then
         self.state_index = self.state_index - 1
+        self:notifyProgressChanged()
     end
 end
 
@@ -66,6 +75,7 @@ function Algorithm:right()
     local state_index = self.state_index
     if self.state_index < #self.states then
         self.state_index = self.state_index + 1
+        self:notifyProgressChanged()
     end
 end
 

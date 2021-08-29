@@ -77,12 +77,14 @@ function love.load()
             love.graphics.line(x, middleY - 200, x, middleY + 200)
 
             love.graphics.printf(([[
-Temperature: %.2fK
+step: %d
+temperature: %.2fK
 point: %d -> %d 
 probability: %.2f%%
 energy: %.2f -> %.2f (%.2f)
-            ]]):format(temperature, point, newPoint, probability * 100, energy,
-                       newEnergy, delta), 10, 10, 300, 'left')
+            ]]):format(state_index, temperature, point, newPoint,
+                       probability * 100, energy, newEnergy, delta), 10, 10,
+                                 300, 'left')
         end,
 
         onComplete = function()
@@ -96,6 +98,10 @@ energy: %.2f -> %.2f (%.2f)
                     simulated_annealing:setProgress(progress)
                 end
             }
+
+            simulated_annealing.onProgressChanged = function(progress)
+                slider.value = progress
+            end
 
             coord.enabled = false
             table.insert(sprites, slider)
