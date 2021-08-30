@@ -96,6 +96,13 @@ energy: %.2f -> %.2f (%.2f)
     sprites = {coord, label, simulated_annealing}
 end
 
+function love.resize(newWidth, newHeight)
+    coord.x = 20
+    coord.y = newHeight / 2 - 20
+    coord.width = newWidth - 40
+    coord.height = newHeight / 2 - 40
+end
+
 function love.mousepressed(x, y, button, istouch, presses)
     for i = #sprites, 1, -1 do
         local sprite = sprites[i]
