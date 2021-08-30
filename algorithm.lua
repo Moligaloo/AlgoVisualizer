@@ -45,12 +45,12 @@ function Algorithm:update(dt)
 end
 
 function Algorithm:draw()
-    local states, state_index, drawState = self.states, self.state_index,
-                                           self.drawState
+    local states, state_index = self.states, self.state_index
     if states and state_index then
         local state = states[state_index]
-        if state then
-            drawState(state_index, state)
+        local drawState = self.drawState
+        if state and drawState then
+            self.drawState(state_index, state)
         end
     end
 end

@@ -39,10 +39,7 @@ function love.load()
                 local newEnergy = getEnergy(newPoint)
                 local delta = newEnergy - energy
                 local probability = math.exp(-delta / temperature)
-                local transfered = false
-                if love.math.random() < probability then
-                    transfered = true
-                end
+                local transfered = delta < 0 or love.math.random() < probability
 
                 yield {
                     point,
@@ -71,11 +68,15 @@ function love.load()
             local probability = state[6]
             local transfered = state[7]
 
-            local x = coord:mapToGraph(point)
+            local currentX = coord:mapToGraph(point)
             local middleY = love.graphics.getHeight() / 2
             love.graphics.setColor(1, 0, 0)
-            love.graphics.line(x, middleY - 200, x, middleY + 200)
+            love.graphics.line(currentX, middleY - 200, currentX, middleY + 200)
+            local newX = coord:mapToGraph(newPoint)
+            love.graphics.setColor(0, 1, 0)
+            love.graphics.line(newX, middleY - 200, newX, middleY + 200)
 
+            love.graphics.setColor(1, 1, 1)
             love.graphics.printf(([[
 step: %d
 temperature: %.2fK
