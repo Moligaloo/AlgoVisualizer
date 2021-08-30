@@ -26,7 +26,12 @@ end
 
 function love.load()
     love.window.setTitle('Simulated Annealing')
-    coord = Coordination()
+    coord = Coordination {
+        x = 20,
+        y = love.graphics.getHeight() / 2 + 20,
+        width = love.graphics.getWidth() - 40,
+        height = love.graphics.getHeight() / 2 - 20
+    }
     label = Label {x = 100, y = 100}
 
     simulated_annealing = Algorithm {
@@ -69,12 +74,11 @@ function love.load()
             local transfered = state[7]
 
             local currentX = coord:mapToGraph(point)
-            local middleY = love.graphics.getHeight() / 2
             love.graphics.setColor(1, 0, 0)
-            love.graphics.line(currentX, middleY - 200, currentX, middleY + 200)
+            love.graphics.line(currentX, coord.y - 200, currentX, coord.y)
             local newX = coord:mapToGraph(newPoint)
             love.graphics.setColor(0, 1, 0)
-            love.graphics.line(newX, middleY - 200, newX, middleY + 200)
+            love.graphics.line(newX, coord.y - 200, newX, coord.y)
 
             love.graphics.setColor(1, 1, 1)
             love.graphics.printf(([[
@@ -84,8 +88,8 @@ point: %d -> %d
 probability: %.2f%%
 energy: %.2f -> %.2f (%.2f)
             ]]):format(state_index, temperature, point, newPoint,
-                       probability * 100, energy, newEnergy, delta), 10, 10,
-                                 300, 'left')
+                       probability * 100, energy, newEnergy, delta),
+                                 love.graphics.getWidth() - 250, 10, 250, 'left')
         end,
 
         onComplete = function()

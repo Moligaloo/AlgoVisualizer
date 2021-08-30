@@ -2,17 +2,6 @@ local Sprite = require 'sprite'
 
 local Coordination = Sprite:subclass 'Coordination'
 
-local function logic_to_graph(logic_x, logic_y)
-    return logic_x and (love.graphics.getWidth() / 2 + logic_x),
-           logic_y and love.graphics.getHeight() / 2 - logic_y
-
-end
-
-local function graph_to_logic(x, y)
-    return x and x - love.graphics.getWidth() / 2,
-           y and love.graphics.getHeight() / 2 - y
-end
-
 function Coordination:initialize(config)
     Sprite.initialize(self, config)
     self.points = nil
@@ -22,7 +11,7 @@ end
 
 function Coordination:mousepressed(x, y)
     if not self.enabled then
-        return
+        return false
     end
 
     self.points = {x, y}
@@ -55,55 +44,41 @@ function Coordination:mousereleased()
     self.inserting = false
 end
 
-local function draw_label(logic_x, logic_y)
-    local screenWidth = love.graphics.getWidth()
-    local screenHeight = love.graphics.getHeight()
-    local x = logic_x + screenWidth / 2
-    local y = screenHeight / 2 - logic_y
-
-    if x < 0 or x > screenWidth or y < 0 or y > screenHeight then
-        return false
-    else
-        love.graphics.circle('fill', x, y, 2)
-
-        if logic_y == 0 then
-            love.graphics.print(tostring(logic_x), x, y)
-        else
-            love.graphics.print(tostring(logic_y), x, y)
-        end
-
-        return true
-    end
-end
-
-local function draw_labels(dx, dy)
+function Coordination:drawLabels(dx, dy)
     local logic_x = dx
     local logic_y = dy
-    while draw_label(logic_x, logic_y) do
+    while self:drawLabel(logic_x, logic_y) do
         logic_x = logic_x + dx
         logic_y = logic_y + dy
     end
 end
 
-local function draw_coordination_axis()
-    draw_label(0, 0)
-    draw_labels(50, 0)
-    draw_labels(-50, 0)
-    draw_labels(0, 50)
-    draw_labels(0, -50)
+function Coordination:drawLabel(logic_x, logic_y)
+    if logic_x > self.width or logic_y > self.height then
+        return false
+    end
+
+    local x, y = self:mapToGraph(logic_x, logic_y)
+    love.graphics.circle('fill', x, y, 2)
+    if logic_y == 0 then
+        love.graphics.print(tostring(logic_x), x, y)
+    else
+        love.graphics.print(tostring(logic_y), x, y)
+    end
+
+    return true
 end
 
 function Coordination:draw()
-    local screenWidth = love.graphics.getWidth()
-    local screenHeight = love.graphics.getHeight()
-
     love.graphics.setColor(1, 1, 1, 0.5)
-    love.graphics.line(0, screenHeight / 2, screenWidth, screenHeight / 2)
-    love.graphics.line(screenWidth / 2, 0, screenWidth / 2, screenHeight)
+    love.graphics.line(self.x, self.y, self.x + self.width, self.y)
+    love.graphics.line(self.x, self.y, self.x, self.y - self.height)
 
     love.graphics.setColor(1, 1, 1)
 
-    draw_coordination_axis()
+    self:drawLabel(0, 0)
+    self:drawLabels(50, 0)
+    self:drawLabels(0, 50)
 
     local points = self.points
     if points and #points >= 4 then
@@ -113,15 +88,15 @@ function Coordination:draw()
 end
 
 function Coordination:mapToLogic(x, y)
-    return graph_to_logic(x, y)
+    return x and x - self.x, y and self.y - y
 end
 
 function Coordination:mapToGraph(logic_x, logic_y)
-    return logic_to_graph(logic_x, logic_y)
+    return logic_x and self.x + logic_x, logic_y and self.y - logic_y
 end
 
 function Coordination:getValue(logic_x)
-    local x = logic_to_graph(logic_x)
+    local x = self:mapToGraph(logic_x)
 
     local points = self.points
     if points and #points >= 4 then
@@ -133,7 +108,7 @@ function Coordination:getValue(logic_x)
                 local y1 = points[i + 3]
                 -- https://zh.wikipedia.org/wiki/%E7%BA%BF%E6%80%A7%E6%8F%92%E5%80%BC
                 local y = y0 + (x - x0) * (y1 - y0) / (x1 - x0)
-                return select(2, graph_to_logic(nil, y))
+                return select(2, self:mapToLogic(nil, y))
             end
         end
     end
