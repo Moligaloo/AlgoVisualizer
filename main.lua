@@ -28,9 +28,9 @@ function love.load()
     love.window.setTitle('Simulated Annealing')
     coord = Coordination {
         x = 20,
-        y = love.graphics.getHeight() / 2 + 20,
+        y = love.graphics.getHeight() / 2 - 20,
         width = love.graphics.getWidth() - 40,
-        height = love.graphics.getHeight() / 2 - 20
+        height = love.graphics.getHeight() / 2 - 40
     }
     label = Label {x = 100, y = 100}
 
@@ -90,26 +90,6 @@ energy: %.2f -> %.2f (%.2f)
             ]]):format(state_index, temperature, point, newPoint,
                        probability * 100, energy, newEnergy, delta),
                                  love.graphics.getWidth() - 250, 10, 250, 'left')
-        end,
-
-        onComplete = function()
-            local sliderWidth = 400
-            local slider = Slider {
-                x = (love.graphics.getWidth() - sliderWidth) / 2,
-                y = love.graphics.getHeight() - 30,
-                width = 400,
-                value = 1,
-                onValueChanged = function(progress)
-                    simulated_annealing:setProgress(progress)
-                end
-            }
-
-            simulated_annealing.onProgressChanged = function(progress)
-                slider.value = progress
-            end
-
-            coord.enabled = false
-            table.insert(sprites, slider)
         end
     }
 
@@ -162,6 +142,28 @@ end
 function love.draw()
     for _, sprite in ipairs(sprites) do
         sprite:draw()
+    end
+
+    local states = simulated_annealing.states
+    if states and #states >= 2 then
+        local temperature_points = {}
+        local origin_x = 20
+        local origin_y = love.graphics.getHeight() - 20
+        local width = love.graphics.getWidth() - 40
+        local height = love.graphics.getHeight() / 2 - 40
+
+        for i, state in ipairs(states) do
+            local temperature = state[5]
+            local ratio = temperature / 1000
+            local x = origin_x + i * 10
+            local y = origin_y - height * ratio
+
+            table.insert(temperature_points, x)
+            table.insert(temperature_points, y)
+        end
+
+        love.graphics.setColor(1, 0, 0)
+        love.graphics.line(temperature_points)
     end
 
 end
