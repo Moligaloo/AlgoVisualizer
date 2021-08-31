@@ -154,6 +154,7 @@ function love.draw()
     local states = simulated_annealing.states
     if states and #states >= 2 then
         local temperature_points = {}
+        local energy_points = {}
         local origin_x = 20
         local origin_y = love.graphics.getHeight() - 20
         local width = love.graphics.getWidth() - 40
@@ -167,10 +168,17 @@ function love.draw()
 
             table.insert(temperature_points, x)
             table.insert(temperature_points, y)
+
+            local energy = state[3]
+            table.insert(energy_points, x)
+            table.insert(energy_points, origin_y - energy)
         end
 
-        love.graphics.setColor(1, 0, 0)
+        love.graphics.setColor(1, 1, 1)
         love.graphics.line(temperature_points)
+
+        love.graphics.setColor(1, 0, 0)
+        love.graphics.line(energy_points)
     end
 
 end
