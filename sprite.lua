@@ -36,4 +36,7 @@ end
 function Sprite:update(dt)
 end
 
+function Sprite:keyreleased(key)
+end
+
 return Sprite
