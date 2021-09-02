@@ -1,11 +1,11 @@
 local Slider = require 'slider'
 local Button = require 'button'
 local Coordination = require 'coordination'
-local Label = require 'label'
 local Algorithm = require 'algorithm'
 
 local yield = coroutine.yield
-local coord, sprites, label, simulated_annealing
+local coord, sprites, simulated_annealing
+local defaultFont
 
 local function getEnergy(point)
     return coord:getValue(point)
@@ -26,13 +26,14 @@ end
 
 function love.load()
     love.window.setTitle('Simulated Annealing')
+    defaultFont = love.graphics.newFont 'kai.ttf'
+
     coord = Coordination {
         x = 20,
         y = love.graphics.getHeight() / 2 - 20,
         width = love.graphics.getWidth() - 40,
         height = love.graphics.getHeight() / 2 - 40
     }
-    label = Label {x = 100, y = 100}
 
     simulated_annealing = Algorithm {
         step = function()
@@ -63,6 +64,10 @@ function love.load()
             end
         end,
 
+        onComplete = function()
+            coord.enabled = false
+        end,
+
         drawState = function(state_index, state)
             local point = state[1]
             local newPoint = state[2]
@@ -82,18 +87,58 @@ function love.load()
 
             love.graphics.setColor(1, 1, 1)
             love.graphics.printf(([[
-step: %d
-temperature: %.2fK
-point: %d -> %d 
-probability: %.2f%%
-energy: %.2f -> %.2f (%.2f)
+步骤:%d
+温度:%.2f K
+点: %d -> %d 
+转移概率: %.2f%%
+能量: %.2f -> %.2f (%.2f)
             ]]):format(state_index, temperature, point, newPoint,
                        probability * 100, energy, newEnergy, delta),
                                  love.graphics.getWidth() - 250, 10, 250, 'left')
+        end,
+
+        drawStates = function(states)
+            if states and #states >= 2 then
+                local temperaturePoints = {}
+                local energyPoints = {}
+                local newEnergyPoints = {}
+                local origin_x = 20
+                local origin_y = love.graphics.getHeight() - 20
+                local width = love.graphics.getWidth() - 40
+                local height = love.graphics.getHeight() / 2 - 40
+
+                for i, state in ipairs(states) do
+                    local temperature = state[5]
+                    local ratio = temperature / 1000
+                    local x = origin_x + i * 10
+                    local y = origin_y - height * ratio
+
+                    table.insert(temperaturePoints, x)
+                    table.insert(temperaturePoints, y)
+
+                    local energy = state[3]
+                    table.insert(energyPoints, x)
+                    table.insert(energyPoints, origin_y - energy)
+
+                    local newEnergy = state[4]
+                    table.insert(newEnergyPoints, x)
+                    table.insert(newEnergyPoints, origin_y - newEnergy)
+                end
+
+                love.graphics.setColor(1, 1, 1)
+                love.graphics.line(temperaturePoints)
+                love.graphics.points(temperaturePoints)
+
+                love.graphics.setColor(1, 0, 0)
+                love.graphics.line(energyPoints)
+
+                love.graphics.setColor(0, 1, 0)
+                love.graphics.line(newEnergyPoints)
+            end
         end
     }
 
-    sprites = {coord, label, simulated_annealing}
+    sprites = {coord, simulated_annealing}
 end
 
 function love.resize(newWidth, newHeight)
@@ -117,11 +162,6 @@ function love.mousemoved(x, y, dx, dy, istouch)
         sprite:mousemoved(x, y)
     end
 
-    local logic_x = coord:mapToLogic(x)
-    local logic_y = coord:getValue(logic_x)
-    if logic_y then
-        label.text = string.format("(%.2f, %.2f)", logic_x, logic_y)
-    end
 end
 
 function love.mousereleased()
@@ -143,43 +183,18 @@ function love.keyreleased(key)
         simulated_annealing:left()
     elseif key == 'right' then
         simulated_annealing:right()
+    elseif key == 'r' then
+        simulated_annealing:reset()
+        coord.enabled = true
     end
 end
 
 function love.draw()
+    love.graphics.setFont(defaultFont)
+    love.graphics.clear()
+
     for _, sprite in ipairs(sprites) do
         sprite:draw()
     end
-
-    local states = simulated_annealing.states
-    if states and #states >= 2 then
-        local temperature_points = {}
-        local energy_points = {}
-        local origin_x = 20
-        local origin_y = love.graphics.getHeight() - 20
-        local width = love.graphics.getWidth() - 40
-        local height = love.graphics.getHeight() / 2 - 40
-
-        for i, state in ipairs(states) do
-            local temperature = state[5]
-            local ratio = temperature / 1000
-            local x = origin_x + i * 10
-            local y = origin_y - height * ratio
-
-            table.insert(temperature_points, x)
-            table.insert(temperature_points, y)
-
-            local energy = state[3]
-            table.insert(energy_points, x)
-            table.insert(energy_points, origin_y - energy)
-        end
-
-        love.graphics.setColor(1, 1, 1)
-        love.graphics.line(temperature_points)
-
-        love.graphics.setColor(1, 0, 0)
-        love.graphics.line(energy_points)
-    end
-
 end
 

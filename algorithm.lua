@@ -20,6 +20,11 @@ function Algorithm:start()
     self.states = {}
 end
 
+function Algorithm:reset()
+    self.status = READY
+    self.states = {}
+end
+
 function Algorithm:update(dt)
     if self.status == RUNNING then
         self.elapsed = self.elapsed + dt
@@ -51,6 +56,11 @@ function Algorithm:draw()
         local drawState = self.drawState
         if state and drawState then
             self.drawState(state_index, state)
+        end
+
+        local drawStates = self.drawStates
+        if drawStates then
+            drawStates(states)
         end
     end
 end

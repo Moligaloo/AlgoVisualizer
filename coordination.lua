@@ -37,6 +37,12 @@ function Coordination:mousemoved(x, y)
             table.insert(points, x)
             table.insert(points, y)
         end
+    else
+        local logic_x = self:mapToLogic(x)
+        local logic_y = self:getValue(logic_x)
+        if logic_x and logic_y then
+            self.pointee = {logic_x, logic_y}
+        end
     end
 end
 
@@ -84,6 +90,15 @@ function Coordination:draw()
     if points and #points >= 4 then
         love.graphics.setColor(1, 1, 1)
         love.graphics.line(points)
+
+        local pointee = self.pointee
+        if pointee then
+            local logic_x, logic_y = pointee[1], pointee[2]
+            local x, y = self:mapToGraph(logic_x, logic_y)
+            love.graphics.circle('fill', x, y, 4)
+            love.graphics.printf(("(%.2f, %.2f)"):format(logic_x, logic_y), x,
+                                 y, 100, 'center')
+        end
     end
 end
 
