@@ -12,12 +12,11 @@ end
 function Button:draw()
     local blueColor = {0, 53 / 255, 106 / 255}
     local whiteColor = {1, 1, 1}
+    local blackColor = {0, 0, 0}
 
-    if self.hovered then
-        love.graphics.setColor(blueColor)
-        love.graphics.rectangle('fill', self.x, self.y, self.width, self.height,
-                                4, 4)
-    end
+    love.graphics.setColor(self.hovered and blueColor or blackColor)
+    love.graphics.rectangle('fill', self.x, self.y, self.width, self.height, 4,
+                            4)
 
     love.graphics.setColor(whiteColor)
     love.graphics.rectangle('line', self.x, self.y, self.width, self.height, 4,

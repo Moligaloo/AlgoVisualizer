@@ -1,8 +1,10 @@
 local defaultFont
-local scene = require 'sa'
+local sa = require 'sa'
+local aco = require 'aco'
+local scene = aco
 
 function love.load()
-    love.window.setTitle('Simulated Annealing')
+    love.window.setTitle(scene.title)
     defaultFont = love.graphics.newFont 'kai.ttf'
 end
 
