@@ -1,11 +1,10 @@
 local defaultFont
-local sa = require 'sa'
-local aco = require 'aco'
-local scene = aco
+local scenes = {(require 'sa')(), (require 'aco')()}
+scene = scenes[2]
 
 function love.load()
-    love.window.setTitle(scene.title)
     defaultFont = love.graphics.newFont 'kai.ttf'
+    scene:switched()
 end
 
 function love.mousepressed(x, y)
@@ -22,6 +21,17 @@ end
 
 function love.update(dt)
     scene:update(dt)
+end
+
+function love.keypressed(key)
+    local index = tonumber(key)
+    if index then
+        local newScene = scenes[index]
+        if newScene then
+            scene = newScene
+            scene:switched()
+        end
+    end
 end
 
 function love.keyreleased(key)

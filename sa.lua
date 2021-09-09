@@ -137,8 +137,6 @@ local SA = Scene:subclass 'SA'
 
 function SA:initialize()
     Scene.initialize(self, {sprites = {coord, simulated_annealing}})
-
-    self.title = 'Simulated Annealing'
 end
 
 function SA:keyreleased(key)
@@ -154,4 +152,8 @@ function SA:keyreleased(key)
     end
 end
 
-return SA()
+function SA:switched()
+    love.window.setTitle 'Simulated Annealing'
+end
+
+return SA

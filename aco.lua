@@ -111,8 +111,6 @@ end
 function ACO:initialize(config)
     Scene.initialize(self, config)
 
-    self.title = 'Ant Colony Optimization'
-
     local origin_x = 30
     local origin_y = 30
     local width = 70
@@ -154,8 +152,11 @@ function ACO:initialize(config)
             text = name
         })
     end
-
 end
 
-return ACO()
+function ACO:switched()
+    love.window.setTitle 'Ant Colony Optimization'
+end
+
+return ACO
 

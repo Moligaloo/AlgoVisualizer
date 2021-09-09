@@ -46,4 +46,7 @@ function Scene:draw()
     end
 end
 
+function Scene:switched()
+end
+
 return Scene
