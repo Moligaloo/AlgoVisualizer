@@ -122,7 +122,6 @@ simulated_annealing = Algorithm {
 
             love.graphics.setColor(1, 1, 1)
             love.graphics.line(temperaturePoints)
-            love.graphics.points(temperaturePoints)
 
             love.graphics.setColor(1, 0, 0)
             love.graphics.line(energyPoints)
