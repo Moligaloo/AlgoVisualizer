@@ -7,6 +7,11 @@ function Scene:initialize(config)
     self.sprites = self.sprites or {}
 end
 
+function Scene:addSprite(sprite)
+    table.insert(self.sprites, sprite)
+    return sprite
+end
+
 function Scene:mousepressed(x, y)
     local sprites = self.sprites
     for i = #sprites, 1, -1 do
