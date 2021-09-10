@@ -2,8 +2,9 @@
 local Scene = require 'scene'
 local Sprite = require 'sprite'
 local _ = require 'underscore'
+local Algorithm = require 'algorithm'
+local class = require 'middleclass'
 
-local ACO = Scene:subclass 'ACO'
 local Node = Sprite:subclass 'Node'
 local ByteOfA = string.byte 'A'
 local FarEnoughRadius = 60
@@ -21,20 +22,140 @@ function Node:distanceTo(another)
     return math.sqrt(dx * dx + dy * dy)
 end
 
-Node.static.totalDistance = function(nodes)
-    local n = #nodes
-    local sum = 0
+Node.static.traversePath = function(path, traverse)
+    local n = #path
     for i = 1, n do
-        local currentNode = nodes[i]
-        local nextNode = nodes[(i + 1) % n]
-        sum = sum + currentNode:distanceTo(nextNode)
+        local current = path[i]
+        local next = i == n and path[1] or path[i + 1]
+        traverse(current, next)
     end
+end
+
+Node.static.eachPair = function(nodes, traverse)
+    for i = 1, #nodes do
+        for j = i + 1, #nodes do
+            traverse(nodes[i], nodes[j])
+        end
+    end
+end
+
+Node.static.totalDistance = function(nodes)
+    local sum = 0
+
+    Node.traversePath(nodes, function(current, next)
+        sum = sum + current:distanceTo(next)
+    end)
+
     return sum
+end
+
+Node.static.makeKey = function(a, b)
+    a = a.label
+    b = b.label
+    return a < b and a .. b or b .. a
+end
+
+-- PheromoneMatrix
+
+local PheromoneMatrix = class 'PheromoneMatrix'
+
+function PheromoneMatrix:initialize(defaultValue)
+    self.matrix = {}
+    self.defaultValue = defaultValue
+end
+
+function PheromoneMatrix:get(a, b)
+    local key = Node.makeKey(a, b)
+    return self.matrix[key] or self.defaultValue
+end
+
+function PheromoneMatrix:update(a, b, func)
+    local key = Node.makeKey(a, b)
+    self.matrix[key] = func(self:get(a, b))
+end
+
+-- ACO
+
+local ACO = Scene:subclass 'ACO'
+
+local function selectWithWeights(weights)
+    local sum = _.reduce(weights, 0, function(a, b)
+        return a + b
+    end)
+    local random = love.math.random()
+
+    local accum = 0
+    for index, weight in ipairs(weights) do
+        accum = accum + weight / sum
+        if random < accum then
+            return index
+        end
+    end
 end
 
 function ACO:initialize(config)
     Scene.initialize(self, config)
     self:generate(10)
+end
+
+function ACO:startAlgorithm()
+    self.algo = Algorithm {
+        tick_duration = 0.02,
+        step = function()
+            local allNodes = self.nodes
+            local pheromoneMatrix = PheromoneMatrix(0.1)
+
+            for i = 1, 200 do
+                local path = {allNodes[1]}
+                for j = 1, #allNodes - 1 do
+                    local last = path[#path]
+                    local neighbors = _.reject(allNodes, function(node)
+                        return _.include(path, node)
+                    end)
+                    local weights = _.map(neighbors, function(neighbor)
+                        local pheromone = pheromoneMatrix:get(last, neighbor)
+                        local visibility = 1 / last:distanceTo(neighbor)
+                        return pheromone * visibility
+                    end)
+
+                    local nextNode = neighbors[selectWithWeights(weights)]
+                    table.insert(path, nextNode)
+                end
+                coroutine.yield(path)
+
+                local totalDistance = Node.totalDistance(path)
+                local deltaPheromone = 1000 / totalDistance
+
+                -- evaporate pheromone
+                Node.eachPair(allNodes, function(a, b)
+                    pheromoneMatrix:update(a, b, function(p)
+                        return p * 0.9
+                    end)
+                end)
+
+                -- accumulate delta pheromone
+                Node.traversePath(path, function(a, b)
+                    pheromoneMatrix:update(a, b, function(p)
+                        return p + deltaPheromone
+                    end)
+                end)
+            end
+        end,
+        drawState = function(state_index, path)
+            love.graphics.setColor(1, 1, 1, 0.5)
+            Node.traversePath(path, function(current, next)
+                love.graphics.line(current.x, current.y, next.x, next.y)
+            end)
+        end
+    }
+
+    self.algo:start()
+
+    if self.sprites[1]:isInstanceOf(Algorithm) then
+        self.sprites[1] = self.algo
+    else
+        table.insert(self.sprites, 1, self.algo)
+    end
 end
 
 function ACO:addNode(x, y)
@@ -82,7 +203,7 @@ end
 
 function ACO:keyreleased(key)
     if key == 'return' then
-        -- start algorithm
+        self:startAlgorithm()
     elseif key == 'c' then
         self.sprites = {}
         self.nodes = {}
