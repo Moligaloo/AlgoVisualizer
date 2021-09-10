@@ -15,6 +15,23 @@ function Node:draw()
     love.graphics.printf(self.label, self.x - 9, self.y - 8, 20, 'center')
 end
 
+function Node:distanceTo(another)
+    local dx = self.x - another.x
+    local dy = self.y - another.y
+    return math.sqrt(dx * dx + dy * dy)
+end
+
+Node.static.totalDistance = function(nodes)
+    local n = #nodes
+    local sum = 0
+    for i = 1, n do
+        local currentNode = nodes[i]
+        local nextNode = nodes[(i + 1) % n]
+        sum = sum + currentNode:distanceTo(nextNode)
+    end
+    return sum
+end
+
 function ACO:initialize(config)
     Scene.initialize(self, config)
     self:generate(10)
