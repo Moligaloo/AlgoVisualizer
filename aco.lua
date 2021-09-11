@@ -82,6 +82,19 @@ local function selectWithWeights(weights)
     end
 end
 
+local function createPath(allNodes, pick)
+    local path = {allNodes[1]}
+    for i = 1, #allNodes - 1 do
+        local candidates = _.reject(allNodes, function(node)
+            return _.include(path, node)
+        end)
+
+        _.push(path, pick(path[#path], candidates))
+    end
+
+    return path
+end
+
 function ACO:initialize(config)
     Scene.initialize(self, config)
     self:generate(10)
@@ -102,26 +115,18 @@ function ACO:startAlgorithm()
             local antCount = 10
 
             local function antMove()
-                local path = {allNodes[1]}
-                for j = 1, #allNodes - 1 do
-                    local last = path[#path]
-                    local neighbors = _.reject(allNodes, function(node)
-                        return _.include(path, node)
-                    end)
-                    local weights = _.map(neighbors, function(neighbor)
-                        local pheromone = pheromoneMatrix[last .. neighbor]
-                        local visibility = 1 / last:distanceTo(neighbor)
+                return createPath(allNodes, function(current, candidates)
+                    local weights = _.map(candidates, function(candidate)
+                        local pheromone = pheromoneMatrix[current .. candidate]
+                        local visibility = 1 / current:distanceTo(candidate)
                         local alpha = 1
                         local beta = 2
                         return math.pow(pheromone, alpha) *
                                    math.pow(visibility, beta)
                     end)
 
-                    local nextNode = neighbors[selectWithWeights(weights)]
-                    table.insert(path, nextNode)
-                end
-
-                return path
+                    return candidates[selectWithWeights(weights)]
+                end)
             end
 
             for i = 1, 200 do
