@@ -55,24 +55,6 @@ function Node:__concat(another)
     return a < b and a .. b or b .. a
 end
 
--- PheromoneMatrix
-
-local PheromoneMatrix = class 'PheromoneMatrix'
-
-function PheromoneMatrix:initialize(defaultValue)
-    self.matrix = {}
-    self.defaultValue = defaultValue
-end
-
-function PheromoneMatrix:get(a, b)
-    return self.matrix[a .. b] or self.defaultValue
-end
-
-function PheromoneMatrix:update(a, b, func)
-    local key = a .. b
-    self.matrix[key] = func(self:get(a, b))
-end
-
 -- ACO
 
 local ACO = Scene:subclass 'ACO'
@@ -102,7 +84,13 @@ function ACO:startAlgorithm()
         tick_duration = 0.02,
         step = function()
             local allNodes = self.nodes
-            local pheromoneMatrix = PheromoneMatrix(0.1)
+            local pheromoneMatrix = {}
+            local defaultPheromone = 0.1
+            -- initialize pheromone matrix
+            Node.eachPair(allNodes, function(a, b)
+                pheromoneMatrix[a .. b] = defaultPheromone
+            end)
+
             local antCount = 2
 
             local function antMove()
@@ -113,7 +101,7 @@ function ACO:startAlgorithm()
                         return _.include(path, node)
                     end)
                     local weights = _.map(neighbors, function(neighbor)
-                        local pheromone = pheromoneMatrix:get(last, neighbor)
+                        local pheromone = pheromoneMatrix[last .. neighbor]
                         local visibility = 1 / last:distanceTo(neighbor)
                         return pheromone * visibility
                     end)
@@ -135,9 +123,7 @@ function ACO:startAlgorithm()
 
                 -- evaporate pheromone
                 Node.eachPair(allNodes, function(a, b)
-                    pheromoneMatrix:update(a, b, function(p)
-                        return p * 0.9
-                    end)
+                    pheromoneMatrix[a .. b] = pheromoneMatrix[a .. b] * 0.9
                 end)
 
                 -- accumulate delta pheromone for each ant
@@ -146,9 +132,8 @@ function ACO:startAlgorithm()
                     local deltaPheromone = 1000 / totalDistance
 
                     Node.traversePath(path, function(a, b)
-                        pheromoneMatrix:update(a, b, function(p)
-                            return p + deltaPheromone
-                        end)
+                        pheromoneMatrix[a .. b] =
+                            pheromoneMatrix[a .. b] + deltaPheromone
                     end)
                 end
 
