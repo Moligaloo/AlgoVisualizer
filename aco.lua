@@ -66,6 +66,11 @@ local function selectWithWeights(weights)
     local sum = _.reduce(weights, 0, function(a, b)
         return a + b
     end)
+
+    if sum == 0 then
+        return love.math.random(#weights)
+    end
+
     local random = love.math.random()
 
     local accum = 0
@@ -88,13 +93,13 @@ function ACO:startAlgorithm()
         step = function()
             local allNodes = self.nodes
             local pheromoneMatrix = {}
-            local defaultPheromone = 0.1
+            local defaultPheromone = 0
             -- initialize pheromone matrix
             for a, b in eachEdge(allNodes) do
                 pheromoneMatrix[a .. b] = defaultPheromone
             end
 
-            local antCount = 2
+            local antCount = 10
 
             local function antMove()
                 local path = {allNodes[1]}
@@ -106,7 +111,10 @@ function ACO:startAlgorithm()
                     local weights = _.map(neighbors, function(neighbor)
                         local pheromone = pheromoneMatrix[last .. neighbor]
                         local visibility = 1 / last:distanceTo(neighbor)
-                        return pheromone * visibility
+                        local alpha = 1
+                        local beta = 2
+                        return math.pow(pheromone, alpha) *
+                                   math.pow(visibility, beta)
                     end)
 
                     local nextNode = neighbors[selectWithWeights(weights)]
