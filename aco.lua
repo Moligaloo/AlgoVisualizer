@@ -125,12 +125,7 @@ function ACO:startAlgorithm()
             end
 
             for i = 1, 200 do
-                local paths = {}
-
-                for j = 1, antCount do
-                    local path = antMove()
-                    table.insert(paths, path)
-                end
+                local paths = _.range(antCount):map(antMove)
 
                 -- evaporate pheromone
                 for a, b in eachEdge(allNodes) do
