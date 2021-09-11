@@ -104,8 +104,9 @@ function ACO:startAlgorithm()
         step = function()
             local allNodes = self.nodes
             local pheromoneMatrix = PheromoneMatrix(0.1)
+            local antCount = 2
 
-            for i = 1, 200 do
+            local function antMove()
                 local path = {allNodes[1]}
                 for j = 1, #allNodes - 1 do
                     local last = path[#path]
@@ -121,10 +122,17 @@ function ACO:startAlgorithm()
                     local nextNode = neighbors[selectWithWeights(weights)]
                     table.insert(path, nextNode)
                 end
-                coroutine.yield(path)
 
-                local totalDistance = Node.totalDistance(path)
-                local deltaPheromone = 1000 / totalDistance
+                return path
+            end
+
+            for i = 1, 200 do
+                local paths = {}
+
+                for j = 1, antCount do
+                    local path = antMove()
+                    table.insert(paths, path)
+                end
 
                 -- evaporate pheromone
                 Node.eachPair(allNodes, function(a, b)
@@ -133,12 +141,19 @@ function ACO:startAlgorithm()
                     end)
                 end)
 
-                -- accumulate delta pheromone
-                Node.traversePath(path, function(a, b)
-                    pheromoneMatrix:update(a, b, function(p)
-                        return p + deltaPheromone
+                -- accumulate delta pheromone for each ant
+                for _, path in ipairs(paths) do
+                    local totalDistance = Node.totalDistance(path)
+                    local deltaPheromone = 1000 / totalDistance
+
+                    Node.traversePath(path, function(a, b)
+                        pheromoneMatrix:update(a, b, function(p)
+                            return p + deltaPheromone
+                        end)
                     end)
-                end)
+                end
+
+                coroutine.yield(paths[1])
             end
         end,
         drawState = function(state_index, path)
