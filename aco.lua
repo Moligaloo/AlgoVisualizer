@@ -22,29 +22,32 @@ function Node:distanceTo(another)
     return math.sqrt(dx * dx + dy * dy)
 end
 
-Node.static.traversePath = function(path, traverse)
-    local n = #path
-    for i = 1, n do
-        local current = path[i]
-        local next = i == n and path[1] or path[i + 1]
-        traverse(current, next)
-    end
+local function eachEdge(nodes)
+    return coroutine.wrap(function()
+        for i = 1, #nodes do
+            for j = i + 1, #nodes do
+                coroutine.yield(nodes[i], nodes[j])
+            end
+        end
+    end)
 end
 
-Node.static.eachPair = function(nodes, traverse)
-    for i = 1, #nodes do
-        for j = i + 1, #nodes do
-            traverse(nodes[i], nodes[j])
+local function eachMove(path)
+    return coroutine.wrap(function()
+        local n = #path
+        for i = 1, n do
+            local current = path[i]
+            local next = i == n and path[1] or path[i + 1]
+            coroutine.yield(current, next)
         end
-    end
+    end)
 end
 
 Node.static.totalDistance = function(nodes)
     local sum = 0
-
-    Node.traversePath(nodes, function(current, next)
-        sum = sum + current:distanceTo(next)
-    end)
+    for a, b in eachMove(nodes) do
+        sum = sum + a:distanceTo(b)
+    end
 
     return sum
 end
@@ -87,9 +90,9 @@ function ACO:startAlgorithm()
             local pheromoneMatrix = {}
             local defaultPheromone = 0.1
             -- initialize pheromone matrix
-            Node.eachPair(allNodes, function(a, b)
+            for a, b in eachEdge(allNodes) do
                 pheromoneMatrix[a .. b] = defaultPheromone
-            end)
+            end
 
             local antCount = 2
 
@@ -122,19 +125,19 @@ function ACO:startAlgorithm()
                 end
 
                 -- evaporate pheromone
-                Node.eachPair(allNodes, function(a, b)
+                for a, b in eachEdge(allNodes) do
                     pheromoneMatrix[a .. b] = pheromoneMatrix[a .. b] * 0.9
-                end)
+                end
 
                 -- accumulate delta pheromone for each ant
                 for _, path in ipairs(paths) do
                     local totalDistance = Node.totalDistance(path)
                     local deltaPheromone = 1000 / totalDistance
 
-                    Node.traversePath(path, function(a, b)
+                    for a, b in eachMove(path) do
                         pheromoneMatrix[a .. b] =
                             pheromoneMatrix[a .. b] + deltaPheromone
-                    end)
+                    end
                 end
 
                 coroutine.yield(paths[1])
@@ -142,9 +145,9 @@ function ACO:startAlgorithm()
         end,
         drawState = function(state_index, path)
             love.graphics.setColor(1, 1, 1, 0.5)
-            Node.traversePath(path, function(current, next)
+            for current, next in eachMove(path) do
                 love.graphics.line(current.x, current.y, next.x, next.y)
-            end)
+            end
         end
     }
 
