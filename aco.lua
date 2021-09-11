@@ -49,9 +49,9 @@ Node.static.totalDistance = function(nodes)
     return sum
 end
 
-Node.static.makeKey = function(a, b)
-    a = a.label
-    b = b.label
+function Node:__concat(another)
+    local a = self.label
+    local b = another.label
     return a < b and a .. b or b .. a
 end
 
@@ -65,12 +65,11 @@ function PheromoneMatrix:initialize(defaultValue)
 end
 
 function PheromoneMatrix:get(a, b)
-    local key = Node.makeKey(a, b)
-    return self.matrix[key] or self.defaultValue
+    return self.matrix[a .. b] or self.defaultValue
 end
 
 function PheromoneMatrix:update(a, b, func)
-    local key = Node.makeKey(a, b)
+    local key = a .. b
     self.matrix[key] = func(self:get(a, b))
 end
 
