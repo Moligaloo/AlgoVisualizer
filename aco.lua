@@ -82,13 +82,21 @@ local function selectWithWeights(weights)
     end
 end
 
+local function minusSet(allArray, exceptArray)
+    local exceptSet = {}
+    for _, value in ipairs(exceptArray) do
+        exceptSet[value] = true
+    end
+
+    return _.reject(allArray, function(value)
+        return exceptSet[value]
+    end)
+end
+
 local function createPath(allNodes, pick)
     local path = {allNodes[1]}
     for i = 1, #allNodes - 1 do
-        local candidates = _.reject(allNodes, function(node)
-            return _.include(path, node)
-        end)
-
+        local candidates = minusSet(allNodes, path)
         _.push(path, pick(path[#path], candidates))
     end
 
