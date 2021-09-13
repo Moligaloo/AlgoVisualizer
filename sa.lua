@@ -40,7 +40,7 @@ simulated_annealing = Algorithm {
             local newEnergy = getEnergy(newPoint)
             local delta = newEnergy - energy
             local probability = math.exp(-delta / temperature)
-            local transfered = delta < 0 or love.math.random() < probability
+            local transited = delta < 0 or love.math.random() < probability
 
             yield {
                 point,
@@ -49,11 +49,11 @@ simulated_annealing = Algorithm {
                 newEnergy,
                 temperature,
                 probability,
-                transfered
+                transited
             }
 
             temperature = cooldown(temperature)
-            if transfered then
+            if transited then
                 point = newPoint
             end
         end
@@ -71,7 +71,6 @@ simulated_annealing = Algorithm {
         local delta = newEnergy - energy
         local temperature = state[5]
         local probability = state[6]
-        local transfered = state[7]
 
         local currentX = coord:mapToGraph(point)
         love.graphics.setColor(1, 0, 0)
@@ -82,8 +81,8 @@ simulated_annealing = Algorithm {
 
         love.graphics.setColor(1, 1, 1)
         love.graphics.printf(([[
-步骤:%d
-温度:%.2f K
+步骤: %d
+温度: %.2f K
 点: %d -> %d 
 转移概率: %.2f%%
 能量: %.2f -> %.2f (%.2f)
