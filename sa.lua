@@ -17,15 +17,6 @@ local function getEnergy(point)
     return coord:getValue(point)
 end
 
-local function randomShift(point)
-    while true do
-        local newPoint = point + love.math.random(-200, 200)
-        if coord:getValue(newPoint) then
-            return newPoint
-        end
-    end
-end
-
 local function cooldown(temperature)
     return temperature * 0.9
 end
@@ -36,7 +27,7 @@ simulated_annealing = Algorithm {
         local temperature = 1000
         while temperature > 1 do
             local energy = getEnergy(point)
-            local newPoint = randomShift(point)
+            local newPoint = coord:randomShift(point, 200)
             local newEnergy = getEnergy(newPoint)
             local delta = newEnergy - energy
             local probability = math.exp(-delta / temperature)

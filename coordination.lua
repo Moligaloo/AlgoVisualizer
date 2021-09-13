@@ -145,4 +145,12 @@ function Coordination:getRandomPoint()
     return self:mapToLogic(self:getRandomX())
 end
 
+function Coordination:randomShift(point, offset)
+    local newPoint
+    repeat
+        newPoint = point + love.math.random(-offset, offset)
+    until self:getValue(newPoint)
+    return newPoint
+end
+
 return Coordination
