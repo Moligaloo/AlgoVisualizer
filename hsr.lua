@@ -104,9 +104,9 @@ function Line:draw()
                          (self.start_y + self.finish_y) / 2 - 15, 30)
 end
 
-local TSP = Scene:subclass 'TSP'
+local HSR = Scene:subclass 'HSR'
 
-function TSP:initialize(config)
+function HSR:initialize(config)
     Scene.initialize(self, config)
 
     local origin_x = 30
@@ -152,4 +152,4 @@ function TSP:initialize(config)
     end
 end
 
-return TSP
+return HSR
