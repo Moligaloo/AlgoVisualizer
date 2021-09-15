@@ -12,6 +12,10 @@ function Algorithm:initialize(config)
     self.status = READY
 end
 
+function Algorithm:isDone()
+    return self.status == DONE
+end
+
 function Algorithm:start()
     self.status = RUNNING
     self.elapsed = 0
