@@ -212,7 +212,7 @@ function ACO:addNode(x, y)
 end
 
 function ACO:mousepressed(x, y)
-    if self:farEnough(x, y) then
+    if self.algo == nil and self:farEnough(x, y) then
         self:addNode(x, y)
     end
 end
@@ -251,6 +251,7 @@ function ACO:keyreleased(key)
     elseif key == 'c' then
         self.sprites = {}
         self.nodes = {}
+        self.algo = nil
     elseif key == 'g' then
         self:generate(10)
     elseif key == 'p' then
