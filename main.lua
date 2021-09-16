@@ -34,6 +34,8 @@ function love.keypressed(key)
             scene = newScene
             scene:switched()
         end
+    elseif key == 'escape' then
+        love.event.quit(0)
     end
 end
 
