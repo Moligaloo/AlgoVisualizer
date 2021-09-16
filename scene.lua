@@ -12,6 +12,12 @@ function Scene:addSprite(sprite)
     return sprite
 end
 
+function Scene:addSprites(sprites)
+    for _, sprite in ipairs(sprites) do
+        table.insert(self.sprites, sprite)
+    end
+end
+
 function Scene:mousepressed(x, y)
     local sprites = self.sprites
     for i = #sprites, 1, -1 do

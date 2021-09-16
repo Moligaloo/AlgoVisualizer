@@ -5,7 +5,9 @@ local Algorithm = require 'algorithm'
 
 local SA = Scene:subclass 'SA'
 
-function SA:initialize()
+function SA:initialize(config)
+    Scene.initialize(self, config)
+
     local yield = coroutine.yield
     local coord = Coordination {
         x = 20,
@@ -122,7 +124,7 @@ function SA:initialize()
     self.coord = coord
     self.algo = algo
 
-    Scene.initialize(self, {sprites = {coord, algo}})
+    self:addSprites{coord, algo}
 end
 
 function SA:keyreleased(key)
