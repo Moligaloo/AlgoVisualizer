@@ -9,6 +9,10 @@ function Coordination:initialize(config)
     self.enabled = true
 end
 
+function Coordination:isReady()
+    return self.points and next(self.points)
+end
+
 function Coordination:mousepressed(x, y)
     if not self.enabled then
         return false
