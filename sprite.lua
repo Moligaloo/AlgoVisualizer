@@ -1,6 +1,7 @@
 local class = require 'middleclass'
 
 local Sprite = class('Sprite')
+local _ = require 'underscore'
 
 function Sprite:initialize(config)
     self.x = 0
@@ -9,9 +10,7 @@ function Sprite:initialize(config)
     self.height = 0
 
     if config then
-        for k, v in pairs(config) do
-            self[k] = v
-        end
+        _.extend(self, config)
     end
 end
 

@@ -1,9 +1,9 @@
 local _ = require 'underscore'
 local defaultFont
-local scenes = _.map({'sa', 'aco', 'hsr'}, function(name)
+local scenes = _.map({'sa', 'aco', 'ga'}, function(name)
     return require(name)()
 end)
-local scene = scenes[2]
+local scene = scenes[3]
 
 function love.load()
     defaultFont = love.graphics.newFont 'kai.ttf'
