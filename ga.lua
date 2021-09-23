@@ -160,7 +160,7 @@ function GA:initialize(config)
             local offspring = state.offspring
             local fitnessMap = state.fitnessMap
 
-            love.graphics.printf(state_index, 10, 10, 100)
+            love.graphics.printf(("%d%%"):format(state_index), 10, 10, 100)
 
             local selectedColor = {0, 1, 0}
             local normalColor = {1, 1, 1}
@@ -172,7 +172,8 @@ function GA:initialize(config)
                                      10, 10 + i * 20, 100)
             end
 
-            love.graphics.rectangle('line', 200, 10, 300, 25)
+            local groupWidth = 200
+            love.graphics.rectangle('line', 200, 10, groupWidth, 25)
             local elite = offspring[#offspring]
             local eliteText = fitnessChromosomeText(elite, fitnessMap[elite])
             love.graphics.printf({selectedColor, eliteText}, 205, 15, 200)
@@ -186,7 +187,7 @@ function GA:initialize(config)
                 local x = 200
                 local y = 40 + (coupleIndex - 1) * 55
 
-                love.graphics.rectangle('line', x, y, 300, 50)
+                love.graphics.rectangle('line', x, y, groupWidth, 50)
                 love.graphics.printf(
                     crossoverChromosomeText(parent1, crossover), x + 5, y + 5,
                     100)
