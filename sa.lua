@@ -2,6 +2,7 @@
 local Scene = require 'scene'
 local Coordination = require 'coordination'
 local Algorithm = require 'algorithm'
+local M = require 'moses'
 
 local SA = Scene:subclass 'SA'
 
@@ -97,16 +98,13 @@ function SA:initialize(config)
                     local x = origin_x + i * 10
                     local y = origin_y - height * ratio
 
-                    table.insert(temperaturePoints, x)
-                    table.insert(temperaturePoints, y)
+                    M.push(temperaturePoints, x, y)
 
                     local energy = state[3]
-                    table.insert(energyPoints, x)
-                    table.insert(energyPoints, origin_y - energy)
+                    M.push(energyPoints, x, origin_y - energy)
 
                     local newEnergy = state[4]
-                    table.insert(newEnergyPoints, x)
-                    table.insert(newEnergyPoints, origin_y - newEnergy)
+                    M.push(newEnergyPoints, x, origin_y - newEnergy)
                 end
 
                 love.graphics.setColor(1, 1, 1)
