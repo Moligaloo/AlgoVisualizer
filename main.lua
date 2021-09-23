@@ -1,6 +1,6 @@
-local _ = require 'underscore'
+local M = require 'moses'
 local defaultFont
-local scenes = _.map({'sa', 'aco', 'ga'}, function(name)
+local scenes = M.map({'sa', 'aco', 'ga'}, function(name)
     return require(name)()
 end)
 local scene = scenes[3]

@@ -1,7 +1,7 @@
 -- ant colony optimization
 local Scene = require 'scene'
 local Sprite = require 'sprite'
-local _ = require 'underscore'
+local M = require 'moses'
 local Algorithm = require 'algorithm'
 local class = require 'middleclass'
 
@@ -63,9 +63,7 @@ end
 local ACO = Scene:subclass 'ACO'
 
 local function selectWithWeights(weights)
-    local sum = _.reduce(weights, 0, function(a, b)
-        return a + b
-    end)
+    local sum = M.sum(weights)
 
     if sum == 0 then
         return love.math.random(#weights)
@@ -88,7 +86,7 @@ local function minusSet(allArray, exceptArray)
         exceptSet[value] = true
     end
 
-    return _.reject(allArray, function(value)
+    return M.reject(allArray, function(value)
         return exceptSet[value]
     end)
 end
@@ -97,7 +95,7 @@ local function createPath(allNodes, pick)
     local path = {allNodes[1]}
     repeat
         local candidates = minusSet(allNodes, path)
-        _.push(path, pick(path[#path], candidates))
+        M.push(path, pick(path[#path], candidates))
     until #path == #allNodes
 
     return path
@@ -125,7 +123,7 @@ function ACO:startAlgorithm()
 
             local function antMove()
                 return createPath(allNodes, function(current, candidates)
-                    local weights = _.map(candidates, function(candidate)
+                    local weights = M.map(candidates, function(candidate)
                         local pheromone = pheromoneMatrix[current .. candidate]
                         local visibility = 1 / current:distanceTo(candidate)
                         local alpha = 1
@@ -139,7 +137,7 @@ function ACO:startAlgorithm()
             end
 
             for i = 1, 200 do
-                local paths = _.range(antCount):map(antMove)
+                local paths = M.map(M.range(antCount), antMove)
 
                 -- evaporate pheromone
                 for a, b in eachEdge(allNodes) do
@@ -159,7 +157,7 @@ function ACO:startAlgorithm()
 
                 coroutine.yield {
                     path = paths[1],
-                    pheromoneMatrix = _.extend({}, pheromoneMatrix)
+                    pheromoneMatrix = M.extend({}, pheromoneMatrix)
                 }
             end
         end,
@@ -219,7 +217,7 @@ end
 
 function ACO:farEnough(x, y)
     local squaredDistance = FarEnoughRadius * FarEnoughRadius
-    return _.all(self.nodes, function(node)
+    return M.all(self.nodes, function(node)
         local dx = x - node.x
         local dy = y - node.y
         local squaredSum = dx * dx + dy * dy

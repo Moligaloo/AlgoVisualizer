@@ -1,7 +1,7 @@
 local class = require 'middleclass'
 
 local Sprite = class('Sprite')
-local _ = require 'underscore'
+local M = require 'moses'
 
 function Sprite:initialize(config)
     self.x = 0
@@ -10,7 +10,7 @@ function Sprite:initialize(config)
     self.height = 0
 
     if config then
-        _.extend(self, config)
+        M.extend(self, config)
     end
 end
 
