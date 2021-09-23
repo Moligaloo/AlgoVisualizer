@@ -1,14 +1,14 @@
 local Scene = require 'scene'
 local Algorithm = require 'algorithm'
-local _ = require 'underscore'
 local GA = Scene:subclass 'GA'
+local M = require 'moses'
 
 local function randomBit()
     return love.math.random(0, 1)
 end
 
 local function randomBits(length)
-    return _.range(length):map(randomBit)
+    return M.map(M.range(length), randomBit)
 end
 
 local function eachCouple(pool)
@@ -82,7 +82,7 @@ function GA:initialize(config)
             local crossoverRate = 0.8
             local mutationRate = 0.1
 
-            local population = _.range(populationSize):map(function()
+            local population = M.map(M.range(populationSize), function()
                 return randomBits(chromosomeLength)
             end)
 
@@ -134,14 +134,12 @@ function GA:initialize(config)
                     return fitnessMap[a] > fitnessMap[b]
                 end)
 
-                local matingPool = _.head(population, matingPoolSize)
-                local elite = _.first(matingPool)
+                local matingPool = M.head(population, matingPoolSize)
+                local elite = matingPool[1]
 
                 local offspring = {}
                 for parent1, parent2 in eachCouple(matingPool) do
-                    local child1, child2 = mate(parent1, parent2)
-                    table.insert(offspring, child1)
-                    table.insert(offspring, child2)
+                    M.push(offspring, mate(parent1, parent2))
                 end
                 table.insert(offspring, elite)
 
