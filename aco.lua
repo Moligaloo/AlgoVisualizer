@@ -157,7 +157,7 @@ function ACO:startAlgorithm()
 
                 coroutine.yield {
                     path = paths[1],
-                    pheromoneMatrix = M.extend({}, pheromoneMatrix)
+                    pheromoneMatrix = M.clone(pheromoneMatrix)
                 }
             end
         end,
