@@ -37,8 +37,7 @@ local function fitnessChromosomeText(chromosome, fitness)
     return ("%s [%d]"):format(table.concat(chromosome), fitness)
 end
 
-local function mutationChromosomeText(chromosome)
-    local mutation = chromosome.mutation
+local function mutationChromosomeText(chromosome, mutation)
     if mutation then
         local colored = {}
         local normalColor = {1, 1, 1}
@@ -93,7 +92,6 @@ function GA:initialize(config)
                 -- crossover
                 if love.math.random() < crossoverRate then
                     point = love.math.random(chromosomeLength)
-                    child1.crossover = point
                 end
 
                 for i = 1, chromosomeLength do
@@ -106,6 +104,7 @@ function GA:initialize(config)
                 end
 
                 -- mutation
+                local result = {}
                 for _, child in ipairs {child1, child2} do
                     local mutation = nil
                     for i = 1, chromosomeLength do
@@ -117,10 +116,11 @@ function GA:initialize(config)
                             mutation[i] = true
                         end
                     end
-                    child.mutation = mutation
+
+                    result[child] = {crossover = point, mutation = mutation}
                 end
 
-                return child1, child2
+                return result
             end
 
             for i = 1, 100 do
@@ -137,16 +137,19 @@ function GA:initialize(config)
                 local matingPool = M.head(population, matingPoolSize)
                 local elite = matingPool[1]
 
-                local offspring = {elite}
+                local matingResult = {}
                 for parent1, parent2 in eachCouple(matingPool) do
-                    M.push(offspring, mate(parent1, parent2))
+                    M.extend(matingResult, mate(parent1, parent2))
                 end
+
+                local offspring = M.append({elite}, M.keys(matingResult))
 
                 coroutine.yield {
                     population = population,
                     matingPool = matingPool,
                     offspring = offspring,
-                    fitnessMap = fitnessMap
+                    fitnessMap = fitnessMap,
+                    matingResult = matingResult
                 }
 
                 population = offspring
@@ -158,6 +161,7 @@ function GA:initialize(config)
             local matingPool = state.matingPool
             local offspring = state.offspring
             local fitnessMap = state.fitnessMap
+            local matingResult = state.matingResult
 
             love.graphics.printf(("%d%%"):format(state_index), 10, 10, 100)
 
@@ -177,27 +181,35 @@ function GA:initialize(config)
             local eliteText = fitnessChromosomeText(elite, fitnessMap[elite])
             love.graphics.printf({selectedColor, eliteText}, 205, 15, 200)
 
+            local parent1Color = {0, 1, 1}
+            local parent2Color = {0, 0, 1}
+
             local coupleIndex = 1
             for parent1, parent2 in eachCouple(matingPool) do
                 local child1 = offspring[2 + (coupleIndex - 1) * 2]
                 local child2 = offspring[3 + (coupleIndex - 1) * 2]
-                local crossover = child1.crossover
+                local crossover = matingResult[child1].crossover
+                local mutation1 = matingResult[child1].mutation
+                local mutation2 = matingResult[child2].mutation
 
                 local x = 200
                 local y = 40 + (coupleIndex - 1) * 55
 
                 love.graphics.rectangle('line', x, y, groupWidth, 50)
+                love.graphics.setColor(parent1Color)
                 love.graphics.printf(
                     crossoverChromosomeText(parent1, crossover), x + 5, y + 5,
                     100)
+                love.graphics.setColor(parent2Color)
                 love.graphics.printf(
                     crossoverChromosomeText(parent2, crossover), x + 5, y + 30,
                     100)
+                love.graphics.setColor(normalColor)
 
-                love.graphics.printf(mutationChromosomeText(child1), x + 105,
-                                     y + 5, 100)
-                love.graphics.printf(mutationChromosomeText(child2), x + 105,
-                                     y + 30, 100)
+                love.graphics.printf(mutationChromosomeText(child1, mutation1),
+                                     x + 105, y + 5, 100)
+                love.graphics.printf(mutationChromosomeText(child2, mutation2),
+                                     x + 105, y + 30, 100)
 
                 coupleIndex = coupleIndex + 1
             end
