@@ -195,16 +195,17 @@ function GA:initialize(config)
 
                 local x = 200
                 local y = 40 + (coupleIndex - 1) * 55
+                local h = 100
 
                 love.graphics.rectangle('line', x, y, groupWidth, 50)
                 love.graphics.setColor(parent1Color)
-                love.graphics.printf(parentText(parent1), x + 5, y + 5, 100)
+                love.graphics.printf(parentText(parent1), x + 5, y + 5, h)
                 love.graphics.setColor(parent2Color)
-                love.graphics.printf(parentText(parent2), x + 5, y + 30, 100)
+                love.graphics.printf(parentText(parent2), x + 5, y + 30, h)
                 love.graphics.setColor(normalColor)
 
-                love.graphics.printf(childText(child1, 1), x + 105, y + 5, 100)
-                love.graphics.printf(childText(child2, 2), x + 105, y + 30, 100)
+                love.graphics.printf(childText(child1, 1), x + 5 + h, y + 5, h)
+                love.graphics.printf(childText(child2, 2), x + 5 + h, y + 30, h)
 
                 coupleIndex = coupleIndex + 1
             end
