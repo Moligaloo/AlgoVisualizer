@@ -137,11 +137,10 @@ function GA:initialize(config)
                 local matingPool = M.head(population, matingPoolSize)
                 local elite = matingPool[1]
 
-                local offspring = {}
+                local offspring = {elite}
                 for parent1, parent2 in eachCouple(matingPool) do
                     M.push(offspring, mate(parent1, parent2))
                 end
-                table.insert(offspring, elite)
 
                 coroutine.yield {
                     population = population,
@@ -174,14 +173,14 @@ function GA:initialize(config)
 
             local groupWidth = 200
             love.graphics.rectangle('line', 200, 10, groupWidth, 25)
-            local elite = offspring[#offspring]
+            local elite = offspring[1]
             local eliteText = fitnessChromosomeText(elite, fitnessMap[elite])
             love.graphics.printf({selectedColor, eliteText}, 205, 15, 200)
 
             local coupleIndex = 1
             for parent1, parent2 in eachCouple(matingPool) do
-                local child1 = offspring[1 + (coupleIndex - 1) * 2]
-                local child2 = offspring[2 + (coupleIndex - 1) * 2]
+                local child1 = offspring[2 + (coupleIndex - 1) * 2]
+                local child2 = offspring[3 + (coupleIndex - 1) * 2]
                 local crossover = child1.crossover
 
                 local x = 200
