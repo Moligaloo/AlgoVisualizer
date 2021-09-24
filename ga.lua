@@ -130,7 +130,7 @@ function GA:initialize(config)
                     fitnessMap[chromosome] = getFitness(chromosome)
                 end
 
-                table.sort(population, function(a, b)
+                M.sort(population, function(a, b)
                     return fitnessMap[a] > fitnessMap[b]
                 end)
 
@@ -207,6 +207,25 @@ function GA:initialize(config)
     self:addSprite(algo)
 
     algo:start()
+    algo:runStep()
+    algo:pause()
+
+    self.algo = algo
+end
+
+function GA:keyreleased(key)
+    if key == 'c' then
+        self.algo:continue()
+    elseif key == 'n' then
+        if not self.algo:isDone() then
+            self.algo:runStep()
+        end
+    elseif key == 'p' then
+        self.algo:pause()
+    elseif key == 'r' then
+        self.algo:reset()
+        self.algo:start()
+    end
 end
 
 function GA:switched()

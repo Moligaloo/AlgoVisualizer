@@ -4,7 +4,8 @@ local Algorithm = Sprite:subclass 'Algorithm'
 
 local READY = 0
 local RUNNING = 1
-local DONE = 2
+local PAUSED = 2
+local DONE = 3
 
 function Algorithm:initialize(config)
     Sprite.initialize(self, config)
@@ -29,6 +30,33 @@ function Algorithm:reset()
     self.states = {}
 end
 
+function Algorithm:runStep()
+    local newState = self.step_co()
+    if newState == nil then
+        self.status = DONE
+        self.step_co = nil
+        local onComplete = self.onComplete
+        if onComplete then
+            onComplete()
+        end
+    else
+        table.insert(self.states, newState)
+        self.state_index = #self.states
+    end
+end
+
+function Algorithm:pause()
+    if self.status == RUNNING then
+        self.status = PAUSED
+    end
+end
+
+function Algorithm:continue()
+    if self.status == PAUSED then
+        self.status = RUNNING
+    end
+end
+
 function Algorithm:update(dt)
     if self.status == RUNNING then
         self.elapsed = self.elapsed + dt
@@ -36,19 +64,7 @@ function Algorithm:update(dt)
         local tick = math.ceil(self.elapsed / tick_duration)
         if tick ~= self.tick then
             self.tick = tick
-
-            local newState = self.step_co()
-            if newState == nil then
-                self.status = DONE
-                self.step_co = nil
-                local onComplete = self.onComplete
-                if onComplete then
-                    onComplete()
-                end
-            else
-                table.insert(self.states, newState)
-                self.state_index = #self.states
-            end
+            self:runStep()
         end
     end
 end
