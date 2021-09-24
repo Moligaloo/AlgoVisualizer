@@ -78,7 +78,7 @@ function GA:initialize(config)
         step = function()
             local populationSize = 21
             local matingPoolSize = 5
-            local chromosomeLength = 9
+            local chromosomeLength = #weights
             local crossoverRate = 0.8
             local mutationRate = 0.1
 
@@ -200,6 +200,29 @@ function GA:initialize(config)
                                      y + 30, 100)
 
                 coupleIndex = coupleIndex + 1
+            end
+
+            local cellX, cellY = 500, 10
+            for i = 1, #weights do
+                local weight = weights[i]
+                local price = prices[i]
+                local cellWidth = price * 10
+                local cellHeight = weight * 15
+
+                local mode = elite[i] == 1 and 'fill' or 'line'
+                love.graphics.setColor(0, 0, 1)
+                love.graphics.rectangle(mode, cellX, cellY, cellWidth,
+                                        cellHeight)
+                love.graphics.setColor(1, 1, 1)
+                love.graphics.rectangle('line', cellX, cellY, cellWidth,
+                                        cellHeight)
+
+                love.graphics.printf(weight, cellX + cellWidth + 5,
+                                     cellY + cellHeight / 2 - 6, 100)
+                love.graphics.printf(price, cellX, cellY + cellHeight / 2 - 6,
+                                     cellWidth, 'center')
+
+                cellY = cellY + cellHeight
             end
         end
     }
