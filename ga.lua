@@ -21,38 +21,6 @@ local function eachCouple(pool)
     end)
 end
 
-local function crossoverChromosomeText(chromosome, point)
-    local copy = {}
-    for i, bit in ipairs(chromosome) do
-        table.insert(copy, bit)
-        if i == point then
-            table.insert(copy, '|')
-        end
-    end
-
-    return table.concat(copy)
-end
-
-local function fitnessChromosomeText(chromosome, fitness)
-    return ("%s [%d]"):format(table.concat(chromosome), fitness)
-end
-
-local function mutationChromosomeText(chromosome, mutation)
-    if mutation then
-        local colored = {}
-        local normalColor = {1, 1, 1}
-        local mutationColor = {1, 0, 0}
-        for i, bit in ipairs(chromosome) do
-            local color = mutation[i] and mutationColor or normalColor
-            table.insert(colored, color)
-            table.insert(colored, tostring(bit))
-        end
-        return colored
-    else
-        return table.concat(chromosome)
-    end
-end
-
 function GA:initialize(config)
     Scene.initialize(self, config)
 
@@ -168,20 +136,24 @@ function GA:initialize(config)
             local selectedColor = {0, 1, 0}
             local normalColor = {1, 1, 1}
 
+            local function chromosomeText(chromosome)
+                local fitness = fitnessMap[chromosome]
+                return ("%s [%d]"):format(table.concat(chromosome), fitness)
+            end
+
             for i, chromosome in ipairs(population) do
                 love.graphics.setColor(i <= 5 and selectedColor or normalColor)
-                love.graphics.printf(fitnessChromosomeText(chromosome,
-                                                           fitnessMap[chromosome]),
-                                     10, 10 + i * 20, 100)
+                love.graphics.printf(chromosomeText(chromosome), 10,
+                                     10 + i * 20, 100)
             end
 
             local groupWidth = 200
             love.graphics.rectangle('line', 200, 10, groupWidth, 25)
             local elite = offspring[1]
-            local eliteText = fitnessChromosomeText(elite, fitnessMap[elite])
+            local eliteText = chromosomeText(elite)
             love.graphics.printf({selectedColor, eliteText}, 205, 15, 200)
 
-            local parent1Color = {0, 1, 1}
+            local parent1Color = {1, 1, 0}
             local parent2Color = {0, 0, 1}
 
             local coupleIndex = 1
@@ -189,27 +161,50 @@ function GA:initialize(config)
                 local child1 = offspring[2 + (coupleIndex - 1) * 2]
                 local child2 = offspring[3 + (coupleIndex - 1) * 2]
                 local crossover = matingResult[child1].crossover
-                local mutation1 = matingResult[child1].mutation
-                local mutation2 = matingResult[child2].mutation
+
+                local function parentText(parent)
+                    if crossover then
+                        local copy = M.clone(parent)
+                        table.insert(copy, crossover + 1, '|')
+                        return table.concat(copy)
+                    else
+                        return table.concat(parent)
+                    end
+                end
+
+                local function childText(child, parentNo)
+                    local mutation = matingResult[child].mutation
+                    local colored = {}
+                    local leftColor, rightColor = parent1Color, parent2Color
+                    if parentNo == 2 then
+                        leftColor, rightColor = parent2Color, parent1Color
+                    end
+                    local normalColor = leftColor
+                    local mutationColor = {1, 0, 0}
+                    for i, bit in ipairs(child) do
+                        local mutated = (mutation and mutation[i])
+                        local color = mutated and mutationColor or normalColor
+                        M.push(colored, color, bit)
+
+                        if i == crossover then
+                            normalColor = rightColor
+                        end
+                    end
+                    return colored
+                end
 
                 local x = 200
                 local y = 40 + (coupleIndex - 1) * 55
 
                 love.graphics.rectangle('line', x, y, groupWidth, 50)
                 love.graphics.setColor(parent1Color)
-                love.graphics.printf(
-                    crossoverChromosomeText(parent1, crossover), x + 5, y + 5,
-                    100)
+                love.graphics.printf(parentText(parent1), x + 5, y + 5, 100)
                 love.graphics.setColor(parent2Color)
-                love.graphics.printf(
-                    crossoverChromosomeText(parent2, crossover), x + 5, y + 30,
-                    100)
+                love.graphics.printf(parentText(parent2), x + 5, y + 30, 100)
                 love.graphics.setColor(normalColor)
 
-                love.graphics.printf(mutationChromosomeText(child1, mutation1),
-                                     x + 105, y + 5, 100)
-                love.graphics.printf(mutationChromosomeText(child2, mutation2),
-                                     x + 105, y + 30, 100)
+                love.graphics.printf(childText(child1, 1), x + 105, y + 5, 100)
+                love.graphics.printf(childText(child2, 2), x + 105, y + 30, 100)
 
                 coupleIndex = coupleIndex + 1
             end
