@@ -103,13 +103,11 @@ end
 
 function ACO:initialize(config)
     Scene.initialize(self, config)
-    self.drawPheromone = true
     self:generate(10)
 end
 
 function ACO:startAlgorithm()
     self.algo = Algorithm {
-        tick_duration = 0.02,
         step = function()
             local allNodes = self.nodes
             local pheromoneMatrix = {}
@@ -165,33 +163,38 @@ function ACO:startAlgorithm()
             local path = state.path
             local pheromoneMatrix = state.pheromoneMatrix
 
-            if self.drawPheromone then
-                local maxPheromone = 0
-                for a, b in eachEdge(self.nodes) do
-                    local pheromone = pheromoneMatrix[a .. b]
-                    maxPheromone = math.max(pheromone, maxPheromone)
-                end
-
-                for a, b in eachEdge(self.nodes) do
-                    local pheromone = pheromoneMatrix[a .. b]
-                    local alpha = pheromone / maxPheromone
-                    if self.algo:isDone() then
-                        love.graphics.setColor(0, 0, 1, alpha)
-                    else
-                        love.graphics.setColor(0, 1, 0, alpha)
-                    end
-                    love.graphics.line(a.x, a.y, b.x, b.y)
-                end
-            else
-                love.graphics.setColor(1, 1, 1, 0.5)
-                for current, next in eachMove(path) do
-                    love.graphics.line(current.x, current.y, next.x, next.y)
-                end
+            local maxPheromone = 0
+            for a, b in eachEdge(self.nodes) do
+                local pheromone = pheromoneMatrix[a .. b]
+                maxPheromone = math.max(pheromone, maxPheromone)
             end
+
+            love.graphics.setLineWidth(10)
+
+            for a, b in eachEdge(self.nodes) do
+                local pheromone = pheromoneMatrix[a .. b]
+                local alpha = pheromone / 50
+                love.graphics.setColor(52 / 255, 120 / 255, 246 / 255, alpha)
+                love.graphics.line(a.x, a.y, b.x, b.y)
+            end
+
+            love.graphics.setColor(1, 1, 1)
+            love.graphics.setLineWidth(1)
+            for current, next in eachMove(path) do
+                love.graphics.line(current.x, current.y, next.x, next.y)
+            end
+
+            if self.algo:isDone() then
+                love.graphics.setColor(1, 0, 0)
+            end
+            love.graphics.printf(("Max Pheromone: %.2f"):format(maxPheromone),
+                                 0, 0, 200)
         end
     }
 
     self.algo:start()
+    self.algo:runStep()
+    self.algo:pause()
 
     if self.sprites[1]:isInstanceOf(Algorithm) then
         self.sprites[1] = self.algo
@@ -247,13 +250,11 @@ function ACO:keyreleased(key)
     if key == 'return' then
         self:startAlgorithm()
     elseif key == 'c' then
-        self.sprites = {}
-        self.nodes = {}
-        self.algo = nil
+        self.algo:continue()
     elseif key == 'g' then
         self:generate(10)
-    elseif key == 'p' then
-        self.drawPheromone = not self.drawPheromone
+    elseif key == 'n' then
+        self.algo:runStep()
     end
 end
 
