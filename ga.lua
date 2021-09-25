@@ -154,7 +154,7 @@ function GA:initialize(config)
             love.graphics.printf({selectedColor, eliteText}, 205, 15, 200)
 
             local parent1Color = {1, 1, 0}
-            local parent2Color = {0, 0, 1}
+            local parent2Color = {1, 1, 1}
 
             local coupleIndex = 1
             for parent1, parent2 in eachCouple(matingPool) do
