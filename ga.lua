@@ -55,35 +55,35 @@ function GA:initialize(config)
 
             local function mate(parent1, parent2)
                 local point
-                local child1, child2 = {}, {}
-
-                -- crossover
                 if love.math.random() < crossoverRate then
                     point = love.math.random(chromosomeLength)
                 end
 
-                for i = 1, chromosomeLength do
-                    table.insert(child1, parent1[i])
-                    table.insert(child2, parent2[i])
-
-                    if i == point then
-                        parent1, parent2 = parent2, parent1
-                    end
-                end
-
-                -- mutation
                 local result = {}
-                for _, child in ipairs {child1, child2} do
+                for permutation in M.permutation {parent1, parent2} do
+                    -- crossover
+                    local p1, p2 = permutation[1], permutation[2]
+                    local child
+                    if point then
+                        child = M.append(M.head(p1, point),
+                                         M.last(p2, #p2 - point))
+                    else
+                        child = p1
+                    end
+
+                    -- mutation
                     local mutation = nil
-                    for i = 1, chromosomeLength do
+                    child = M.map(child, function(bit, i)
                         if love.math.random() < mutationRate then
                             if mutation == nil then
                                 mutation = {}
                             end
-                            child[i] = child[i] == 0 and 1 or 0
                             mutation[i] = true
+                            return bit == 0 and 1 or 0
+                        else
+                            return bit
                         end
-                    end
+                    end)
 
                     result[child] = {crossover = point, mutation = mutation}
                 end
