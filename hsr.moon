@@ -91,10 +91,8 @@ city_names, adjacent_matrix = make_cities {
     }
 }
 
-Line = Sprite\subclass 'Line'
-
-with Line
-    .draw = () =>
+class Line extends Sprite
+    draw: () =>
         with love.graphics
             .line @start_x, @start_y, @finish_x, @finish_y
             .printf(
@@ -104,9 +102,9 @@ with Line
                 30
             )
 
-with Scene\subclass 'HSR'
-    .initialize = (config) =>
-        Scene\initialize self, config
+class HSR extends Scene
+    new: (config) =>
+        super config
 
         origin_x = 30
         origin_y = 30
@@ -145,5 +143,5 @@ with Scene\subclass 'HSR'
                 :height
                 text: name
 
-    .switched = =>
+    switched: =>
         love.window.setTitle 'High Speed Railway'

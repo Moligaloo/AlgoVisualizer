@@ -19,9 +19,9 @@ eachCouple = (pool) ->
                 yield pool[i], pool[j]
     )
 
-with Scene\subclass 'GA'
-    .initialize = (config) =>
-        Scene.initialize self, config
+class GA extends Scene
+    new: (config) =>
+        super config
 
         weights = {2, 1, 6, 1, 4, 9, 5, 8, 3}
         prices = {5, 3, 15, 5, 6, 18, 8, 20, 8}
@@ -195,7 +195,7 @@ with Scene\subclass 'GA'
 
         @algo = algo
     
-    .keyreleased = (key) =>
+    keyreleased: (key) =>
         with @algo
             switch key
                 when 'c'
@@ -208,6 +208,6 @@ with Scene\subclass 'GA'
                     \reset!
                     \start!
     
-    .switched = =>
+    switched: =>
         love.window.setTitle 'Genetic Algorithm'
         

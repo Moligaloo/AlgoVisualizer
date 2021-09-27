@@ -5,26 +5,26 @@ RUNNING = 1
 PAUSED = 2
 DONE = 3
 
-with Sprite\subclass 'Algorithm'
-    .initialize = (config) =>
-        Sprite.initialize self, config
+class Algorithm extends Sprite
+    new: (config) =>
+        super config
         @status = READY
     
-    .isDone = =>
+    isDone: =>
         @status == DONE
 
-    .start = =>
+    start: =>
         @status = RUNNING
         @elapsed = 0
         @tick = nil
         @step_co = coroutine.wrap @step
         @states = {}
     
-    .reset = =>
+    reset: =>
         @status = READY
         @states = {}
     
-    .runStep = =>
+    runStep: =>
         newState = @step_co!
         if newState == nil
             @status = DONE
@@ -35,13 +35,13 @@ with Sprite\subclass 'Algorithm'
             table.insert @states, newState
             @state_index = #@states
 
-    .pause = =>
+    pause: =>
         @status = PAUSED if @status == RUNNING
     
-    .continue = =>
+    continue: =>
         @status = RUNNING if @status == PAUSED
         
-    .update = (dt) =>
+    update: (dt) =>
         if @status == RUNNING
             @elapsed += dt
             tick_duration = @tick_duration or 0.2
@@ -50,7 +50,7 @@ with Sprite\subclass 'Algorithm'
                 @tick = tick
                 self\runStep!
     
-    .draw = =>
+    draw: =>
         states, state_index = @states, @state_index
         if states and state_index
             state = states[state_index]
@@ -60,22 +60,22 @@ with Sprite\subclass 'Algorithm'
 
             @drawStates states if @drawStates
         
-    .notifyProgressChanged = =>
+    notifyProgressChanged: =>
         onProgressChanged = @onProgressChanged
         if onProgressChanged
             progress = (@state_index - 1) / (#@states - 1)
             onProgressChanged progress
     
-    .left = =>
+    left: =>
         if @state_index > 1
             @state_index -= 1
             self\notifyProgressChanged!
     
-    .right = =>
+    right: =>
         if @state_index < #@states
             @state_index += 1
             self\notifyProgressChanged!
 
-    .setProgress = (progress) =>
+    setProgress: (progress) =>
         if @states
             @state_index = math.ceil(#@states * progress)

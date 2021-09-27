@@ -46,34 +46,34 @@ selectWithWeights = (weights) ->
         if random < accum 
             return index
 
-Node = with Sprite\subclass 'Node'
-    .draw = =>
+class Node extends Sprite
+    draw: =>
         with love.graphics
             .setColor 1, 1, 1
             .circle 'fill', @x, @y, 15, 100
             .setColor 0, 0, 0
             .printf @label, @x - 9, @y - 8, 20, 'center' 
 
-    .distanceTo = (another) =>
+    distanceTo: (another) =>
         dx = @x - another.x
         dy = @y - another.y
         math.sqrt(dx*dx + dy*dy)
 
-    .__concat = (another) =>
+    __concat: (another) =>
         a = @label
         b = another.label
         a < b and a..b or b..a
 
-    .static.totalDistance = (nodes) ->
+    @totalDistance: (nodes) ->
         M.sum [a\distanceTo(b) for a,b in eachMove nodes]
             
 
-with Scene\subclass 'ACO'
-    .initialize = (config) =>
-        Scene.initialize self, config
+class ACO extends Scene
+    new: (config) =>
+        super config
         self\generate 10
 
-    .startAlgorithm = =>
+    startAlgorithm: =>
         @algo = Algorithm
             tick_duration: 0.02
             step: ->
@@ -94,7 +94,7 @@ with Scene\subclass 'ACO'
                             pheromone = pheromoneMatrix[current..candidate]
                             visibility = 1/current\distanceTo(candidate)
                             pheromone^alpha * visibility^beta
-                            
+
                         weights = [getWeight(candidate) for candidate in *candidates]
                         candidates[selectWithWeights weights]
 
@@ -141,30 +141,30 @@ with Scene\subclass 'ACO'
 
         @algo\start!
 
-        if @sprites[1]\isInstanceOf Algorithm
+        if @sprites[1].__class == Algorithm
             @sprites[1] = @algo
         else
             table.insert @sprites, 1, @algo
 
-    .addNode = (x,y) =>
+    addNode: (x,y) =>
         newNode = Node
             :x
             :y
             label: string.char(ByteOfA + #@nodes)
         table.insert @nodes, self\addSprite newNode
 
-    .mousepressed = (x,y) =>
+    mousepressed: (x,y) =>
         if @algo == nil and self\farEnough(x,y) 
             self\addNode x,y
 
-    .farEnough = (x,y) =>
+    farEnough: (x,y) =>
         squaredDistance = FarEnoughRadius * FarEnoughRadius
         M.all @nodes, (node) ->
             dx = x - node.x
             dy = y - node.y
             dx*dx + dy*dy >= squaredDistance
 
-    .generate = (n) =>
+    generate: (n) =>
         @sprites = {}
         @nodes = {}
         margin = 50
@@ -180,7 +180,7 @@ with Scene\subclass 'ACO'
                     break
             self\addNode x,y
 
-    .keyreleased = (key) =>
+    keyreleased: (key) =>
         switch key
             when 'return'
                 self\startAlgorithm!
@@ -191,6 +191,6 @@ with Scene\subclass 'ACO'
             when 'n'
                 @algo\runStep!
 
-    .switched = =>
+    switched: =>
         love.window.setTitle 'Ant Colony Optimization'
 

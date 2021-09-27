@@ -4,17 +4,17 @@ export love
 
 import random from love.math
 
-with Sprite\subclass 'Coordination'
-    .initialize = (config) =>
-        Sprite.initialize self, config
+class Coordination extends Sprite
+    new: (config) =>
+        super config
         @points = nil
         @inserting = false
         @enabled = true
 
-    .isReady = =>
+    isReady: =>
         @points and next @points
     
-    .mousepressed = (x,y) =>
+    mousepressed: (x,y) =>
         return false unless @enabled
 
         @points = {x,y}
@@ -22,7 +22,7 @@ with Sprite\subclass 'Coordination'
 
         @inserting
 
-    .mousemoved = (x,y) =>
+    mousemoved: (x,y) =>
         inserting = @inserting
         points = @points
 
@@ -41,17 +41,17 @@ with Sprite\subclass 'Coordination'
             if logic_x and logic_y
                 @pointee = {logic_x, logic_y}
         
-    .mousereleased = =>
+    mousereleased: =>
         @inserting = false
 
-    .drawLabels = (dx, dy) =>
+    drawLabels: (dx, dy) =>
         logic_x = dx
         logic_y = dy
         while self\drawLabel logic_x, logic_y
             logic_x += dx
             logic_y += dy
 
-    .drawLabel = (logic_x, logic_y) =>
+    drawLabel: (logic_x, logic_y) =>
         return false if logic_x > @width or logic_y > @height
         
         x,y = self\mapToGraph logic_x, logic_y
@@ -61,7 +61,7 @@ with Sprite\subclass 'Coordination'
 
         true
             
-    .draw = =>
+    draw: =>
         with love.graphics
             .setColor 1,1,1,0.5
             .line @x, @y, @x+@width, @y
@@ -83,13 +83,13 @@ with Sprite\subclass 'Coordination'
                     .circle 'fill', x, y, 4
                     .printf ("(%.2f, %.2f)")\format(logic_x, logic_y), x, y, 100, 'center'
 
-    .mapToLogic = (x,y) =>
+    mapToLogic: (x,y) =>
         x and x-@x, y and @y-y
     
-    .mapToGraph = (logic_x, logic_y) =>
+    mapToGraph: (logic_x, logic_y) =>
         logic_x and @x + logic_x, logic_y and @y - logic_y
     
-    .getValue = (logic_x) =>
+    getValue: (logic_x) =>
         x = self\mapToGraph logic_x
 
         points = @points
@@ -102,15 +102,15 @@ with Sprite\subclass 'Coordination'
                     y = y0 + (x - x0) * (y1 - y0) / (x1 - x0)
                     return select(2, self\mapToLogic(nil, y))
 
-    .getRandomX = =>
+    getRandomX: =>
         points = @points
         if points and #points >= 4
             points[1+(random(#points/2)-1)*2]
     
-    .getRandomPoint = =>
+    getRandomPoint: =>
         self\mapToLogic self\getRandomX!
 
-    .randomShift = (point, offset) =>
+    randomShift: (point, offset) =>
         while true
             newPoint = point + random(-offset, offset)
             if self\getValue newPoint

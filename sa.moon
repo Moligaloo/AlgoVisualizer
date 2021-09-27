@@ -9,9 +9,9 @@ export love
 import yield from coroutine
 import random, exp from math
 
-with Scene\subclass 'SA'
-    .initialize = (config) =>
-        Scene.initialize self,config
+class SA extends Scene
+    new: (config) =>
+        super config
         coord = Coordination
             x: 20
             y: love.graphics.getHeight! / 2 - 20
@@ -109,7 +109,7 @@ with Scene\subclass 'SA'
 
         self\addSprites{coord, algo}
     
-    .keyreleased = (key) =>
+    keyreleased: (key) =>
         switch key
             when 'return'
                 if @coord\isReady!
@@ -123,6 +123,6 @@ with Scene\subclass 'SA'
                 @algo\reset!
                 @coord.enabled = true
     
-    .switched = =>
+    switched: =>
         love.window.setTitle 'Simulated Annealing'
                         

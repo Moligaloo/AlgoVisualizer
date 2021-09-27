@@ -1,12 +1,14 @@
 Sprite = require 'sprite'
 
-with Sprite\subclass 'Button'
-    .initialize = (config) =>
-        Sprite.initialize self, config
+export love
+
+class Button extends Sprite
+    new: (config) =>
+        super config
         @width = 80
         @height = 30
     
-    .draw = =>
+    draw: =>
         blueColor = {0, 53 / 255, 106 / 255}
         whiteColor = {1, 1, 1}
         blackColor = {0, 0, 0}
@@ -18,11 +20,11 @@ with Sprite\subclass 'Button'
             .rectangle 'line', @x, @y, @width, @height, 4, 4
             .printf @text, @x, @y+7, @width, 'center'
         
-    .mousemoved = (x,y) =>
+    mousemoved: (x,y) =>
         @hovered = self\isHit x,y
     
-    .mousereleased = =>
+    mousereleased: =>
         @onClick! if @hovered and @onClick
     
-    .mousepressed = => @hovered
+    mousepressed: => @hovered
     
