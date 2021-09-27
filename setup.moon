@@ -4,6 +4,8 @@ defaultFont = nil
 scenes = [(require name)! for name in *{'sa', 'aco', 'ga'}]
 scene = scenes[2]
 
+export love
+
 with love
     .load = ->
         defaultFont = love.graphics.newFont 'kai.ttf'
@@ -35,8 +37,9 @@ with love
         scene\keyreleased key
     
     .draw = ->
-        love.graphics.setFont defaultFont
-        love.graphics.clear!
+        with love.graphics
+            .setFont defaultFont
+            .clear!
         scene\draw!
         
 

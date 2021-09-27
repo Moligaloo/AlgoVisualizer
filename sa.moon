@@ -5,7 +5,9 @@ Coordination = require 'coordination'
 Algorithm = require 'algorithm'
 M = require 'moses'
 
+export love
 import yield from coroutine
+import random, exp from math
 
 with Scene\subclass 'SA'
     .initialize = (config) =>
@@ -28,8 +30,8 @@ with Scene\subclass 'SA'
                     newPoint = coord\randomShift point, 200
                     newEnergy = getEnergy newPoint
                     delta = newEnergy - energy
-                    probability = math.exp(-delta/temperature)
-                    transited = delta < 0 or love.math.random! < probability
+                    probability = exp(-delta/temperature)
+                    transited = delta < 0 or random! < probability
 
                     yield {
                         point
@@ -46,7 +48,7 @@ with Scene\subclass 'SA'
                         point = newPoint
             
             drawState: (state_index, state) ->
-                { point, newPoint, energy, newEnergy, temperature, probability, transited } = state
+                { point, newPoint, energy, newEnergy, temperature, probability } = state
                 delta = newEnergy - energy
 
                 with love.graphics
@@ -79,7 +81,6 @@ with Scene\subclass 'SA'
                     newEnergyPoints = {}
                     origin_x = 20
                     origin_y = .getHeight! - 20
-                    width = .getWidth! - 40
                     height = .getHeight!/2 - 40
 
                     for i,state in ipairs states
