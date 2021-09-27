@@ -15,7 +15,7 @@ with Sprite\subclass 'Coordination'
         @points and next @points
     
     .mousepressed = (x,y) =>
-        return false if not @enabled
+        return false unless @enabled
 
         @points = {x,y}
         @inserting = true
