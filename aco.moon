@@ -5,11 +5,12 @@ Sprite = require 'sprite'
 M = require 'moses'
 Algorithm = require 'algorithm'
 
+export love
+
 ByteOfA = string.byte 'A'
 FarEnoughRadius = 60
 
 import yield from coroutine
-import pow from math
 
 eachEdge = (nodes) ->
     coroutine.wrap -> 
@@ -73,13 +74,15 @@ with Scene\subclass 'ACO'
         self\generate 10
 
     .startAlgorithm = =>
-        @algo = Algorithm {
+        @algo = Algorithm
             tick_duration: 0.02
             step: ->
                 allNodes = @nodes
                 pheromoneMatrix = {}
                 defaultPheromone = 0
                 antCount = 10  
+                alpha = 1
+                beta = 2
 
                 -- initialize pheromone matrix
                 for a, b in eachEdge allNodes
@@ -87,18 +90,17 @@ with Scene\subclass 'ACO'
                 
                 antMove = ->
                     createPath allNodes, (current, candidates) ->
-                        getWeight = (current, candidate) ->
+                        getWeight = (candidate) ->
                             pheromone = pheromoneMatrix[current..candidate]
                             visibility = 1/current\distanceTo(candidate)
-                            alpha = 1
-                            beta = 2
-                            pow(pheromone, alpha) * pow(visibility, beta) 
-                        weights = [getWeight(current, candidate) for candidate in *candidates]
+                            pheromone^alpha * visibility^beta
+                            
+                        weights = [getWeight(candidate) for candidate in *candidates]
                         candidates[selectWithWeights weights]
 
                 for i=1, 200
                     -- create paths from ants
-                    paths = [antMove! for i=1, antCount]
+                    paths = [antMove! for _=1, antCount]
                     
                     -- evaporate current pheromone
                     pheromoneMatrix = M.map pheromoneMatrix, (x)->x*0.9
@@ -136,7 +138,6 @@ with Scene\subclass 'ACO'
                     
                     maxPheromone = M.max pheromoneMatrix
                     .printf "Max Pheromone: #{maxPheromone}", 0, 0, 500
-        }
 
         @algo\start!
 
