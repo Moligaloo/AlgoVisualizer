@@ -102,16 +102,23 @@ class ACO extends Scene
                 for i=1, 200
                     -- create paths from ants
                     paths = [antMove! for _=1, antCount]
+
+                    -- calculate ants' deposited pheromone
+                    delta = M(paths)\map(
+                            (path) ->
+                                totalDistance = Node.totalDistance path
+                                deltaPheromone = 1000 / totalDistance
+                                [{a..b, deltaPheromone} for a,b in eachMove path]
+                        )\flatten(true)\reduce(
+                            (matrix, item) ->
+                                {key, value} = item
+                                matrix[key] = (matrix[key] or 0) + value 
+                                matrix
+                            {}
+                        )\value!
                     
-                    -- evaporate current pheromone
-                    pheromoneMatrix = M.map pheromoneMatrix, (x)->x*0.9
-                        
-                    -- accumulate ants' generated pheromones 
-                    for path in *paths
-                        totalDistance = Node.totalDistance path
-                        deltaPheromone = 1000 / totalDistance
-                        for a,b in eachMove path
-                            pheromoneMatrix[a..b] += deltaPheromone
+                    -- evaporate pheromone and accumulate new deposited pheromone
+                    pheromoneMatrix = M.map(pheromoneMatrix, (pheromone, edge) -> pheromone*0.9+(delta[edge] or 0))
 
                     yield
                         path: paths[1]
