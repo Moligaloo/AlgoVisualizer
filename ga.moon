@@ -19,6 +19,9 @@ eachCouple = (pool) ->
                 yield pool[i], pool[j]
     )
 
+dotProduct = (vector1, vector2) ->
+    M.sum M.zipWith M.op.mul, vector1, vector2
+
 class GA extends Scene
     new: (config) =>
         super config
@@ -28,9 +31,8 @@ class GA extends Scene
         maxWeight = 25
 
         getFitness = (chromosome) ->
-            totalWeight = M.sum M.zipWith M.op.mul, chromosome, weights 
-            return 0 if totalWeight > maxWeight
-            M.sum M.zipWith M.op.mul, chromosome, prices
+            totalWeight = dotProduct chromosome, weights 
+            if totalWeight <= maxWeight then dotProduct chromosome, prices else 0
         
         algo = Algorithm 
             tick_duration: 0.02
