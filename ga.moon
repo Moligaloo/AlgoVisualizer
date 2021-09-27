@@ -28,13 +28,9 @@ class GA extends Scene
         maxWeight = 25
 
         getFitness = (chromosome) ->
-            totalPrice, totalWeight = 0,0
-            for i, bit in ipairs chromosome
-                if bit == 1
-                    totalPrice += prices[i]
-                    totalWeight += weights[i]
-            
-            if totalWeight <= maxWeight then totalPrice else 0
+            totalWeight = M.sum M.zipWith M.op.mul, chromosome, weights 
+            return 0 if totalWeight > maxWeight
+            M.sum M.zipWith M.op.mul, chromosome, prices
         
         algo = Algorithm 
             tick_duration: 0.02
