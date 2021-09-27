@@ -27,7 +27,7 @@ with love
         index = tonumber key
         if index
             newScene = scenes[index]
-            if newScene
+            if newScene and scene != newScene
                 scene = newScene
                 scene\switched!
         elseif key == 'escape'

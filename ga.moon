@@ -75,7 +75,7 @@ class GA extends Scene
                 
                 for i=1, 100 
                     fitnessMap = {chromosome, getFitness(chromosome) for chromosome in *population}
-                    M.sort population, (a,b)-> fitnessMap[a]>fitnessMap[b]
+                    table.sort population, (a,b)-> fitnessMap[a]>fitnessMap[b]
 
                     matingPool = M.head population, matingPoolSize
                     elite = matingPool[1]

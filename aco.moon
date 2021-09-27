@@ -11,6 +11,7 @@ ByteOfA = string.byte 'A'
 FarEnoughRadius = 60
 
 import yield from coroutine
+import random from love.math
 
 eachEdge = (nodes) ->
     coroutine.wrap -> 
@@ -32,18 +33,18 @@ createPath = (allNodes, pick) ->
     path = {allNodes[1]}
     while #path != #allNodes
         candidates = minusSet allNodes, path
-        M.push path, pick(path[#path], candidates)
+        table.insert path, pick(path[#path], candidates)
     path
 
 selectWithWeights = (weights) ->
     sum = M.sum weights
-    return love.math.random(#weights) if sum == 0
+    return random(#weights) if sum == 0
          
-    random = love.math.random!
+    r = random!
     accum = 0
     for index, weight in ipairs weights
         accum += weight/sum
-        if random < accum 
+        if r < accum 
             return index
 
 class Node extends Sprite
@@ -174,8 +175,8 @@ class ACO extends Scene
         for i=1, n 
             x, y = 0, 0
             while true
-                x = love.math.random margin, width - margin
-                y = love.math.random margin, height - margin
+                x = random margin, width - margin
+                y = random margin, height - margin
                 if self\farEnough x,y 
                     break
             self\addNode x,y
