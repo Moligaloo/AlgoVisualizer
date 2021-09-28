@@ -144,7 +144,7 @@ class ACO extends Scene
                         .setColor 1,0,0
                     
                     maxPheromone = M.max pheromoneMatrix
-                    .printf "Max Pheromone: #{maxPheromone}", 0, 0, 500
+                    .printf "Step: #{state_index} Max Pheromone: #{maxPheromone}", 0, 0, 500
 
         @algo\start!
 
