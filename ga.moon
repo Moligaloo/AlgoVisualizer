@@ -46,30 +46,24 @@ class GA extends Scene
                 population = [randomBits(chromosomeLength) for i=1, populationSize]
                 
                 mate = (parent1, parent2) ->
-                    point = if random! < crossoverRate then random(chromosomeLength-1) else nil
-                    result = {}
-                    for permutation in M.permutation {parent1, parent2}
+                    crossover = if random! < crossoverRate then random(chromosomeLength-1) else nil
+                    reproduce = (permutation) ->
                         {p1, p2} = permutation
-                        child = nil
-                        if point 
-                            child = M.append M.head(p1, point), M.last(p2, #p2-point) 
+                        child = if crossover 
+                            M.append M.head(p1, crossover), M.last(p2, #p2-crossover) 
                         else 
-                            child = p1
+                            p1
 
-                        mutation = nil
+                        mutation = {i, true for i=1, chromosomeLength when random! < mutationRate}
                         child = M.map(child, (bit, i) ->
-                            if random! < mutationRate
-                                mutation = {} if mutation == nil
-                                mutation[i] = true
+                            if mutation[i]
                                 if bit == 0 then 1 else 0
                             else
                                 bit
                         )
-                        
-                        result[child] = 
-                            crossover: point
-                            :mutation
-                    result
+                        child, {:crossover, :mutation}
+                    
+                    {reproduce(permutation) for permutation in M.permutation {parent1, parent2}}
                 
                 for i=1, 100 
                     fitnessMap = {chromosome, getFitness(chromosome) for chromosome in *population}
@@ -84,17 +78,18 @@ class GA extends Scene
 
                     offspring = M.append {elite}, M.keys matingResult
                 
-                    yield
-                        :population
-                        :matingPool
-                        :offspring
-                        :fitnessMap
-                        :matingResult
-                    
+                    yield {
+                        population
+                        matingPool
+                        offspring
+                        fitnessMap
+                        matingResult
+                    }
+
                     population = offspring
 
             drawState: (state_index, state) ->
-                {:population, :matingPool, :offspring, :fitnessMap, :matingResult} = state
+                {population, matingPool, offspring, fitnessMap, matingResult} = state
 
                 selectedColor = {0,1,0}
                 dropColor = {1,1,1}
@@ -117,7 +112,8 @@ class GA extends Scene
 
                     parent1Color = {1,1,0}
                     parent2Color = {1,1,1}
-
+                    mutationColor = {1,0,0}
+                   
                     coupleIndex = 1
                     for parent1, parent2 in eachCouple matingPool
                         child1 = offspring[2 + (coupleIndex - 1) * 2]
@@ -134,22 +130,20 @@ class GA extends Scene
 
                         childText = (child, parentNo) ->
                             mutation = matingResult[child].mutation
-                            colored = {}
-
                             leftColor, rightColor = parent1Color, parent2Color
                             if parentNo == 2
                                 leftColor, rightColor = parent2Color, parent1Color
-
-                            normalColor = leftColor
-                            mutationColor = {1,0,0}
-                            for i, bit in ipairs child 
-                                mutated = mutation and mutation[i]
-                                color = mutated and mutationColor or normalColor
-                                M.push colored, color, bit
-                                if i == crossover
-                                    normalColor = rightColor
                             
-                            colored
+                            M.flatten(
+                                for i, bit in ipairs child
+                                    color = leftColor
+                                    if crossover and i > crossover
+                                        color = rightColor
+                                    if mutation[i]
+                                        color = mutationColor
+                                    {color, bit}
+                                true
+                            )
                     
                         x = 200
                         y = 40 + (coupleIndex - 1) * 55
