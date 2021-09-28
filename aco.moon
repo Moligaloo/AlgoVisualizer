@@ -86,8 +86,7 @@ class ACO extends Scene
                 beta = 2
 
                 -- initialize pheromone matrix
-                for a, b in eachEdge allNodes
-                    pheromoneMatrix[a..b] = defaultPheromone
+                pheromoneMatrix = { a..b, defaultPheromone for a,b in eachEdge allNodes}
                 
                 antMove = ->
                     createPath allNodes, (current, candidates) ->
