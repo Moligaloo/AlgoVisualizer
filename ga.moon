@@ -46,7 +46,7 @@ class GA extends Scene
                 population = [randomBits(chromosomeLength) for i=1, populationSize]
                 
                 mate = (parent1, parent2) ->
-                    point = if random! < crossoverRate then random chromosomeLength else nil
+                    point = if random! < crossoverRate then random(chromosomeLength-1) else nil
                     result = {}
                     for permutation in M.permutation {parent1, parent2}
                         {p1, p2} = permutation
