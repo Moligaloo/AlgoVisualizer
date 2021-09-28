@@ -13,7 +13,8 @@
                 "isDefault": true
             },
             "presentation": {
-                "reveal": "never",
+                "reveal": "silent",
+                "revealProblems": "onProblem",
                 "echo": false,
                 "focus": false,
                 "clear": false,
