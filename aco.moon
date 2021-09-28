@@ -91,12 +91,11 @@ class ACO extends Scene
                 
                 antMove = ->
                     createPath allNodes, (current, candidates) ->
-                        getWeight = (candidate) ->
+                        weights = for candidate in *candidates
                             pheromone = pheromoneMatrix[current..candidate]
                             visibility = 1/current\distanceTo(candidate)
                             pheromone^alpha * visibility^beta
-
-                        weights = [getWeight(candidate) for candidate in *candidates]
+                            
                         candidates[selectWithWeights weights]
 
                 for i=1, 200
