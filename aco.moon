@@ -99,19 +99,19 @@ class ACO extends Scene
                     path = nil 
 
                     -- evaporate pheromone and accumulate new ants' deposited pheromone
-                    pheromoneMatrix = M.range antCount 
-                        |> M.map antMove
-                        |> M.tap (paths) -> path = paths[1]
-                        |> M.map (path) ->
-                            totalDistance = Node.totalDistance path
-                            deltaPheromone = 1000 / totalDistance
-                            [{a..b, deltaPheromone} for a,b in eachMove path]
+                    pheromoneMatrix = [antMove! for i=1, antCount]
+                        |> M.map (path) -> {:path, distance: Node.totalDistance path}
+                        |> M.sortBy 'distance'
+                        |> M.tap (pairs) -> path = pairs[1].path
+                        |> M.map (pair) ->
+                            deltaPheromone = 1000 / pair.distance
+                            [{a..b, deltaPheromone} for a,b in eachMove pair.path]
                         |> M.flatten true
                         |> M.reduce(
                             (matrix, item) ->
-                                {key, deltaPheromone} = item
+                                {edge, deltaPheromone} = item
                                 with matrix
-                                    matrix[key] += deltaPheromone
+                                    matrix[edge] += deltaPheromone
                             pheromoneMatrix |> M.map evaporate
                         )
 
