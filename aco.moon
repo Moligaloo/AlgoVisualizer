@@ -70,6 +70,7 @@ class ACO extends Scene
     new: (config) =>
         super config
         @\generate 10
+        @drawPheromone = true
 
     startAlgorithm: =>
         @algo = Algorithm
@@ -124,11 +125,12 @@ class ACO extends Scene
                 with love.graphics
                     .setLineWidth 10
 
-                    for a,b in eachEdge @nodes
-                        pheromone = pheromoneMatrix[a..b]
-                        alpha = pheromone/50
-                        .setColor 52 / 255, 120 / 255, 246 / 255, alpha
-                        .line a.x, a.y, b.x, b.y
+                    if @drawPheromone
+                        for a,b in eachEdge @nodes
+                            pheromone = pheromoneMatrix[a..b]
+                            alpha = pheromone/50
+                            .setColor 52 / 255, 120 / 255, 246 / 255, alpha
+                            .line a.x, a.y, b.x, b.y
                     
                     .setColor 1,1,1
                     .setLineWidth 1
@@ -191,6 +193,8 @@ class ACO extends Scene
                 @\generate 10
             when 'n'
                 @algo\runStep!
+            when 'p'
+                @drawPheromone = not @drawPheromone
 
     switched: =>
         love.window.setTitle 'Ant Colony Optimization'
