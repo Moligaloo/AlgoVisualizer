@@ -76,11 +76,12 @@ class ACO extends Scene
             tick_duration: 0.02
             step: ->
                 allNodes = @nodes
-                pheromoneMatrix = {}
                 defaultPheromone = 0
                 antCount = 10  
                 alpha = 1
                 beta = 2
+
+                evaporate = (pheromone) -> pheromone * 0.9
 
                 -- initialize pheromone matrix
                 pheromoneMatrix = { a..b, defaultPheromone for a,b in eachEdge allNodes}
@@ -97,8 +98,9 @@ class ACO extends Scene
                 for i=1, 200
                     path = nil 
 
-                    -- calculate ants' deposited pheromone
-                    delta = [antMove! for _=1, antCount]
+                    -- evaporate pheromone and accumulate new ants' deposited pheromone
+                    pheromoneMatrix = M.range antCount 
+                        |> M.map antMove
                         |> M.tap (paths) -> path = paths[1]
                         |> M.map (path) ->
                             totalDistance = Node.totalDistance path
@@ -107,14 +109,11 @@ class ACO extends Scene
                         |> M.flatten true
                         |> M.reduce(
                             (matrix, item) ->
-                                {key, value} = item
-                                matrix[key] = (matrix[key] or 0) + value 
-                                matrix
-                            {}
+                                {key, deltaPheromone} = item
+                                with matrix
+                                    matrix[key] += deltaPheromone
+                            pheromoneMatrix |> M.map evaporate
                         )
-                    
-                    -- evaporate pheromone and accumulate new deposited pheromone
-                    pheromoneMatrix = M.map(pheromoneMatrix, (pheromone, edge) -> pheromone*0.9+(delta[edge] or 0))
 
                     yield
                         :path
@@ -137,8 +136,7 @@ class ACO extends Scene
                     for current, next in eachMove path 
                         .line current.x, current.y, next.x, next.y
                     
-                    if @algo\isDone!
-                        .setColor 1,0,0
+                    .setColor 1,0,0 if @algo\isDone!    
                     
                     maxPheromone = M.max pheromoneMatrix
                     .printf "Step: #{state_index} Max Pheromone: #{maxPheromone}", 0, 0, 500
