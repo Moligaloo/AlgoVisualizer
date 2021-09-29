@@ -2,7 +2,6 @@ Scene = require 'scene'
 Button = require 'button'
 Sprite = require 'sprite'
 
-export love
 import floor from math
 
 make_index = (row, column) -> row*10 + column

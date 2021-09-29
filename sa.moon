@@ -5,7 +5,6 @@ Coordination = require 'coordination'
 Algorithm = require 'algorithm'
 M = require 'moses'
 
-export love
 import yield from coroutine
 import random, exp from math
 

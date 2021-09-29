@@ -4,8 +4,6 @@ defaultFont = nil
 scenes = [(require name)! for name in *{'sa', 'aco', 'ga'}]
 scene = scenes[2]
 
-export love
-
 with love
     .load = ->
         defaultFont = love.graphics.newFont 'kai.ttf'

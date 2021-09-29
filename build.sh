@@ -1,3 +1,3 @@
 #!/bin/sh
 
-moonc *.moon --output-to moonlua
+yue *.moon -t moonlua

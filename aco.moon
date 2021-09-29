@@ -4,9 +4,6 @@ Scene = require 'scene'
 Sprite = require 'sprite'
 M = require 'moses'
 Algorithm = require 'algorithm'
-
-export love
-
 ByteOfA = string.byte 'A'
 FarEnoughRadius = 60
 
@@ -98,28 +95,29 @@ class ACO extends Scene
                         candidates[selectWithWeights weights]
 
                 for i=1, 200
-                    -- create paths from ants
-                    paths = [antMove! for _=1, antCount]
+                    path = nil 
 
                     -- calculate ants' deposited pheromone
-                    delta = M(paths)\map(
-                            (path) ->
-                                totalDistance = Node.totalDistance path
-                                deltaPheromone = 1000 / totalDistance
-                                [{a..b, deltaPheromone} for a,b in eachMove path]
-                        )\flatten(true)\reduce(
+                    delta = [antMove! for _=1, antCount]
+                        |> M.tap (paths) -> path = paths[1]
+                        |> M.map (path) ->
+                            totalDistance = Node.totalDistance path
+                            deltaPheromone = 1000 / totalDistance
+                            [{a..b, deltaPheromone} for a,b in eachMove path]
+                        |> M.flatten true
+                        |> M.reduce(
                             (matrix, item) ->
                                 {key, value} = item
                                 matrix[key] = (matrix[key] or 0) + value 
                                 matrix
                             {}
-                        )\value!
+                        )
                     
                     -- evaporate pheromone and accumulate new deposited pheromone
                     pheromoneMatrix = M.map(pheromoneMatrix, (pheromone, edge) -> pheromone*0.9+(delta[edge] or 0))
 
                     yield
-                        path: paths[1]
+                        :path
                         :pheromoneMatrix
 
             drawState: (state_index, state) ->

@@ -1,7 +1,5 @@
 Sprite = require 'sprite'
 
-export love
-
 class Button extends Sprite
     new: (config) =>
         super config

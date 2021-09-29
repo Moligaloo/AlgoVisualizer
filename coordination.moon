@@ -1,6 +1,5 @@
 Sprite = require 'sprite'
 M = require 'moses'
-export love
 
 import random from love.math
 
