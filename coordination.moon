@@ -27,8 +27,8 @@ class Coordination extends Sprite
 
         if inserting
             valid = true
-            for i=1, #points, 2 
-                if points[i] > x
+            for p in *points[,,2]
+                if p > x
                     valid = false
                     break
             
