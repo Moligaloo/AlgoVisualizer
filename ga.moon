@@ -177,7 +177,7 @@ class GA extends Scene
                 
             
         
-        self\addSprite algo
+        @\addSprite algo
 
         algo\start!
         algo\runStep!

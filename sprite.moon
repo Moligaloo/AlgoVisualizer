@@ -8,10 +8,10 @@ class Sprite
         @height = 0
         
         if config
-            M.extend self, config
+            M.extend @, config
     
     mousepressed: (x,y) => 
-        self\isHit x,y
+        @\isHit x,y
     
     mousemoved: (x,y) =>
     mousereleased: (x,y) =>

@@ -106,7 +106,7 @@ class SA extends Scene
         @coord = coord
         @algo = algo
 
-        self\addSprites{coord, algo}
+        @\addSprites{coord, algo}
     
     keyreleased: (key) =>
         switch key

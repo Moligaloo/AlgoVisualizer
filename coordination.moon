@@ -35,8 +35,8 @@ class Coordination extends Sprite
             if valid
                 M.push points, x, y
         else
-            logic_x = self\mapToLogic x
-            logic_y = self\getValue logic_x
+            logic_x = @\mapToLogic x
+            logic_y = @\getValue logic_x
             if logic_x and logic_y
                 @pointee = {logic_x, logic_y}
         
@@ -46,14 +46,14 @@ class Coordination extends Sprite
     drawLabels: (dx, dy) =>
         logic_x = dx
         logic_y = dy
-        while self\drawLabel logic_x, logic_y
+        while @\drawLabel logic_x, logic_y
             logic_x += dx
             logic_y += dy
 
     drawLabel: (logic_x, logic_y) =>
         return false if logic_x > @width or logic_y > @height
         
-        x,y = self\mapToGraph logic_x, logic_y
+        x,y = @\mapToGraph logic_x, logic_y
         with love.graphics
             .circle 'fill', x, y, 2
             .print (logic_y == 0 and logic_x or logic_y), x, y
@@ -67,9 +67,9 @@ class Coordination extends Sprite
             .line @x, @y, @x, @y-@height
             
             .setColor 1,1,1
-            self\drawLabel 0,0
-            self\drawLabels 50,0
-            self\drawLabels 0,50
+            @\drawLabel 0,0
+            @\drawLabels 50,0
+            @\drawLabels 0,50
 
             points = @points
             if points and #points >= 4
@@ -78,7 +78,7 @@ class Coordination extends Sprite
                 pointee = @pointee
                 if pointee
                     {logic_x, logic_y} = pointee
-                    x,y = self\mapToGraph logic_x, logic_y
+                    x,y = @\mapToGraph logic_x, logic_y
                     .circle 'fill', x, y, 4
                     .printf ("(%.2f, %.2f)")\format(logic_x, logic_y), x, y, 100, 'center'
 
@@ -89,7 +89,7 @@ class Coordination extends Sprite
         logic_x and @x + logic_x, logic_y and @y - logic_y
     
     getValue: (logic_x) =>
-        x = self\mapToGraph logic_x
+        x = @\mapToGraph logic_x
 
         points = @points
         if points and #points >= 4
@@ -99,7 +99,7 @@ class Coordination extends Sprite
                     y0,y1 = points[i + 1],points[i + 3]
                     -- https://zh.wikipedia.org/wiki/%E7%BA%BF%E6%80%A7%E6%8F%92%E5%80%BC
                     y = y0 + (x - x0) * (y1 - y0) / (x1 - x0)
-                    return select(2, self\mapToLogic(nil, y))
+                    return select(2, @\mapToLogic(nil, y))
 
     getRandomX: =>
         points = @points
@@ -107,10 +107,10 @@ class Coordination extends Sprite
             points[1+(random(#points/2)-1)*2]
     
     getRandomPoint: =>
-        self\mapToLogic self\getRandomX!
+        @\mapToLogic @\getRandomX!
 
     randomShift: (point, offset) =>
         while true
             newPoint = point + random(-offset, offset)
-            if self\getValue newPoint
+            if @\getValue newPoint
                 return newPoint

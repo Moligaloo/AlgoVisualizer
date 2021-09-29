@@ -124,7 +124,7 @@ class HSR extends Scene
             start_x, start_y = getPos floor index/100
             finish_x, finish_y = getPos to
 
-            self\addSprite Line {
+            @\addSprite Line {
                 start_x: start_x + width / 2
                 start_y: start_y + height / 2
                 finish_x: finish_x + width / 2
@@ -135,7 +135,7 @@ class HSR extends Scene
         for index, name in pairs city_names
             x, y = getPos index
 
-            self\addSprite Button
+            @\addSprite Button
                 :x
                 :y
                 :width

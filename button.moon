@@ -19,7 +19,7 @@ class Button extends Sprite
             .printf @text, @x, @y+7, @width, 'center'
         
     mousemoved: (x,y) =>
-        @hovered = self\isHit x,y
+        @hovered = @\isHit x,y
     
     mousereleased: =>
         @onClick! if @hovered and @onClick

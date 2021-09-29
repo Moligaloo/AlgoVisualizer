@@ -69,7 +69,7 @@ class Node extends Sprite
 class ACO extends Scene
     new: (config) =>
         super config
-        self\generate 10
+        @\generate 10
 
     startAlgorithm: =>
         @algo = Algorithm
@@ -155,11 +155,11 @@ class ACO extends Scene
             :x
             :y
             label: string.char(ByteOfA + #@nodes)
-        table.insert @nodes, self\addSprite newNode
+        table.insert @nodes, @\addSprite newNode
 
     mousepressed: (x,y) =>
-        if @algo == nil and self\farEnough(x,y) 
-            self\addNode x,y
+        if @algo == nil and @\farEnough(x,y) 
+            @\addNode x,y
 
     farEnough: (x,y) =>
         squaredDistance = FarEnoughRadius * FarEnoughRadius
@@ -180,18 +180,18 @@ class ACO extends Scene
             while true
                 x = random margin, width - margin
                 y = random margin, height - margin
-                if self\farEnough x,y 
+                if @\farEnough x,y 
                     break
-            self\addNode x,y
+            @\addNode x,y
 
     keyreleased: (key) =>
         switch key
             when 'return'
-                self\startAlgorithm!
+                @\startAlgorithm!
             when 'c'
                 @algo\continue! if @algo
             when 'g'
-                self\generate 10
+                @\generate 10
             when 'n'
                 @algo\runStep!
 

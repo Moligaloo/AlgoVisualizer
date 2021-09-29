@@ -48,7 +48,7 @@ class Algorithm extends Sprite
             tick = math.ceil @elapsed / tick_duration
             if tick != @tick 
                 @tick = tick
-                self\runStep!
+                @\runStep!
     
     draw: =>
         states, state_index = @states, @state_index
@@ -69,12 +69,12 @@ class Algorithm extends Sprite
     left: =>
         if @state_index > 1
             @state_index -= 1
-            self\notifyProgressChanged!
+            @\notifyProgressChanged!
     
     right: =>
         if @state_index < #@states
             @state_index += 1
-            self\notifyProgressChanged!
+            @\notifyProgressChanged!
 
     setProgress: (progress) =>
         if @states
