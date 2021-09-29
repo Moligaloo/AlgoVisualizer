@@ -101,7 +101,7 @@ class GA extends Scene
                     .printf "%d%%"\format(state_index), 10, 10, 100
 
                     for i, chromosome in ipairs population
-                        .setColor i <= 5 and selectedColor or dropColor
+                        .setColor i <= #matingPool and selectedColor or dropColor
                         .printf chromosomeText(chromosome), 10, 10 + i * 20, 100
                     
                     groupWidth = 200
