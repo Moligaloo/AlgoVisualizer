@@ -6,7 +6,7 @@
         {
             "label": "Love2D",
             "type": "shell",
-            "command": "./build.sh && love .",
+            "command": "rake -s && love .",
             "problemMatcher": [],
             "group": {
                 "kind": "build",
