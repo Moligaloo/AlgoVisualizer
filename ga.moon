@@ -20,6 +20,9 @@ eachCouple = (pool) ->
 dotProduct = (vector1, vector2) ->
     M.sum M.zipWith M.op.mul, vector1, vector2
 
+xor = (a,b) ->
+    a==b and 0 or 1
+
 class GA extends Scene
     new: (config) =>
         super config
@@ -41,24 +44,26 @@ class GA extends Scene
                 crossoverRate = 0.8
                 mutationRate = 0.1
 
-                population = [randomBits(chromosomeLength) for i=1, populationSize]
+                recombine = (another, crossover) =>
+                    if crossover
+                        M.append M.head(@, crossover), M.last(another, #another-crossover)
+                    else
+                        @
                 
+                mutate = (mutation) =>
+                    M.zipWith xor, @, mutation
+
+                population = [randomBits(chromosomeLength) for i=1, populationSize]
                 mate = (parent1, parent2) ->
                     crossover = if random! < crossoverRate then random(chromosomeLength-1) else nil
                     reproduce = (permutation) ->
                         {p1, p2} = permutation
-                        child = if crossover 
-                            M.append M.head(p1, crossover), M.last(p2, #p2-crossover) 
-                        else 
-                            p1
 
-                        mutation = {i, true for i=1, chromosomeLength when random! < mutationRate}
-                        child = M.map(child, (bit, i) ->
-                            if mutation[i]
-                                if bit == 0 then 1 else 0
-                            else
-                                bit
-                        )
+                        mutation = [(random! < mutationRate and 1 or 0) for i=1,chromosomeLength]
+                        child = p1 
+                            |> recombine p2, crossover
+                            |> mutate mutation
+
                         child, {:crossover, :mutation}
                     
                     {reproduce(permutation) for permutation in M.permutation {parent1, parent2}}
@@ -137,7 +142,7 @@ class GA extends Scene
                                     color = leftColor
                                     if crossover and i > crossover
                                         color = rightColor
-                                    if mutation[i]
+                                    if mutation[i] == 1
                                         color = mutationColor
                                     {color, bit}
                                 true
