@@ -75,9 +75,8 @@ class GA extends Scene
                     matingPool = M.head population, matingPoolSize
                     elite = matingPool[1]
 
-                    matingResult = {}
-                    for parent1, parent2 in eachCouple matingPool
-                        M.extend(matingResult, mate(parent1, parent2))
+                    matingResult = [mate parent1, parent2 for parent1, parent2 in eachCouple matingPool] 
+                        |> M.reduce M.extend, {}
 
                     offspring = M.append {elite}, M.keys matingResult
                 
