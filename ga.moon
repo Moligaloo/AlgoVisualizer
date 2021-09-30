@@ -11,11 +11,10 @@ randomBit = -> random 0,1
 randomBits = (length) -> [randomBit! for i=1, length]
 
 eachCouple = (pool) ->
-    coroutine.wrap( ->
+    coroutine.wrap ->
         for i=1, #pool-1
             for j=i+1, #pool
                 yield pool[i], pool[j]
-    )
 
 dotProduct = (vector1, vector2) ->
     M.sum M.zipWith M.op.mul, vector1, vector2
@@ -178,9 +177,7 @@ class GA extends Scene
                         .printf "¥ #{price}", cellX, cellY+cellHeight/2-6, cellWidth, 'center'
                         
                         cellY += cellHeight
-                
-            
-        
+                            
         @\addSprite algo
 
         algo\start!
