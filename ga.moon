@@ -55,18 +55,16 @@ class GA extends Scene
                 population = [randomBits(chromosomeLength) for i=1, populationSize]
                 mate = (parent1, parent2) ->
                     crossover = if random! < crossoverRate then random(chromosomeLength-1) else nil
-                    reproduce = (permutation) ->
-                        {p1, p2} = permutation
-
+                    reproduce = (p1, p2) ->
                         mutation = [(random! < mutationRate and 1 or 0) for i=1,chromosomeLength]
                         child = p1 
                             |> recombine p2, crossover
                             |> mutate mutation
 
-                        child, {:crossover, :mutation}
-                    
-                    {reproduce(permutation) for permutation in M.permutation {parent1, parent2}}
-                
+                        {:child, :crossover, :mutation}
+
+                    { reproduce(parent1, parent2), reproduce(parent2, parent1) }
+                                    
                 for i=1, 100 
                     fitnessMap = {chromosome, getFitness(chromosome) for chromosome in *population}
                     table.sort population, (a,b)-> fitnessMap[a]>fitnessMap[b]
@@ -74,10 +72,9 @@ class GA extends Scene
                     matingPool = M.head population, matingPoolSize
                     elite = matingPool[1]
 
-                    matingResult = [mate parent1, parent2 for parent1, parent2 in eachCouple matingPool] 
-                        |> M.reduce M.extend, {}
+                    matingResult = [mate parent1, parent2 for parent1, parent2 in eachCouple matingPool] |> M.flatten true
 
-                    offspring = M.append {elite}, M.keys matingResult
+                    offspring = M.append {elite}, M.map(matingResult, => @child)
                 
                     yield {
                         population
@@ -97,6 +94,9 @@ class GA extends Scene
 
                 chromosomeText = (chromosome) ->
                     "#{table.concat(chromosome)} [#{fitnessMap[chromosome]}]"
+
+                childToCrossover = {item.child, item.crossover for item in *matingResult}
+                childToMutation = {item.child, item.mutation for item in *matingResult}
 
                 with love.graphics
                     .printf "%d%%"\format(state_index), 10, 10, 100
@@ -119,7 +119,7 @@ class GA extends Scene
                     for parent1, parent2 in eachCouple matingPool
                         child1 = offspring[2 + (coupleIndex - 1) * 2]
                         child2 = offspring[3 + (coupleIndex - 1) * 2]
-                        crossover = matingResult[child1].crossover
+                        crossover = childToCrossover[child1]
 
                         parentText = (parent) ->
                             if crossover
@@ -130,7 +130,7 @@ class GA extends Scene
                                 table.concat parent
 
                         childText = (child, parentNo) ->
-                            mutation = matingResult[child].mutation
+                            mutation = childToMutation[child]
                             leftColor, rightColor = parent1Color, parent2Color
                             if parentNo == 2
                                 leftColor, rightColor = parent2Color, parent1Color
