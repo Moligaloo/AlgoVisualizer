@@ -121,30 +121,24 @@ class GA extends Scene
                         child2 = offspring[3 + (coupleIndex - 1) * 2]
                         crossover = childToCrossover[child1]
 
-                        parentText = (parent) ->
-                            if crossover
-                                copy = M.clone parent
-                                table.insert copy, crossover+1, '|'
-                                table.concat copy
-                            else
-                                table.concat parent
-
-                        childText = (child, parentNo) ->
-                            mutation = childToMutation[child]
-                            leftColor, rightColor = parent1Color, parent2Color
-                            if parentNo == 2
-                                leftColor, rightColor = parent2Color, parent1Color
-                            
-                            M.flatten(
-                                for i, bit in ipairs child
-                                    color = leftColor
-                                    if crossover and i > crossover
-                                        color = rightColor
-                                    if mutation[i] == 1
-                                        color = mutationColor
-                                    {color, bit}
-                                true
+                        parentText = =>
+                            M.thread(
+                                @
+                                => if crossover then M.tap M.clone(@), => table.insert @, crossover+1, '|' else @
+                                M.concat                                    
                             )
+
+                        childText = (leftColor, rightColor) =>
+                            mutation = childToMutation[@]
+                            bitColor = (i) ->
+                                if mutation[i] == 1
+                                    mutationColor
+                                elseif crossover and i > crossover
+                                    rightColor
+                                else
+                                    leftColor
+
+                            [{bitColor(i), bit} for i, bit in ipairs @] |> M.flatten true
                     
                         x = 200
                         y = 40 + (coupleIndex - 1) * 55
@@ -156,8 +150,8 @@ class GA extends Scene
                         .setColor parent2Color
                         .printf parentText(parent2), x+5, y+30, h
                         
-                        .printf childText(child1, 1), x+5+h, y+5, h
-                        .printf childText(child2, 2), x+5+h, y+30, h
+                        .printf childText(child1, parent1Color, parent2Color), x+5+h, y+5, h
+                        .printf childText(child2, parent2Color, parent1Color), x+5+h, y+30, h
 
                         coupleIndex += 1
                     
