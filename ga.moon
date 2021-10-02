@@ -34,6 +34,15 @@ class GA extends Scene
             totalWeight = dotProduct chromosome, weights 
             if totalWeight <= maxWeight then dotProduct chromosome, prices else 0
         
+        recombine = (another, crossover) =>
+            if crossover
+                M.append M.head(@, crossover), M.last(another, #another-crossover)
+            else
+                @
+                
+        mutate = (mutation) =>
+            M.zipWith xor, @, mutation
+        
         algo = Algorithm 
             tick_duration: 0.02
             step: ->
@@ -42,15 +51,6 @@ class GA extends Scene
                 chromosomeLength = #weights
                 crossoverRate = 0.8
                 mutationRate = 0.1
-
-                recombine = (another, crossover) =>
-                    if crossover
-                        M.append M.head(@, crossover), M.last(another, #another-crossover)
-                    else
-                        @
-                
-                mutate = (mutation) =>
-                    M.zipWith xor, @, mutation
 
                 population = [randomBits(chromosomeLength) for i=1, populationSize]
                 mate = (parent1, parent2) ->
