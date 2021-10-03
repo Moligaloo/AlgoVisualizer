@@ -60,13 +60,13 @@ class SA extends Scene
 
                     .setColor 1,1,1
                     text = ("步骤: %d\n温度: %.2f K\n点: %d -> %d\n转移概率: %.2f%%\n能量: %.2f -> %.2f (%.2f)")\format(
-                        state_index,
-                        temperature,
-                        point,
-                        newPoint,
-                        probability * 100,
-                        energy,
-                        newEnergy,
+                        state_index
+                        temperature
+                        point
+                        newPoint
+                        probability * 100
+                        energy
+                        newEnergy
                         delta
                     )
                     .printf text, .getWidth!-250, 10, 250, 'left'

@@ -9,6 +9,7 @@ FarEnoughRadius = 60
 
 import yield from coroutine
 import random from love.math
+import sqrt from math
 
 eachEdge = (nodes) ->
     coroutine.wrap -> 
@@ -55,7 +56,7 @@ class Node extends Sprite
     distanceTo: (another) =>
         dx = @x - another.x
         dy = @y - another.y
-        math.sqrt(dx*dx + dy*dy)
+        sqrt(dx*dx + dy*dy)
 
     __concat: (another) =>
         a = @label
