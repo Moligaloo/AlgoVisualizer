@@ -4,7 +4,7 @@ Scene = require 'scene'
 Sprite = require 'sprite'
 M = require 'moses'
 Algorithm = require 'algorithm'
-ByteOfA = string.byte 'A'
+ByteOfA = 'A'\byte!
 FarEnoughRadius = 60
 
 import yield from coroutine
@@ -36,7 +36,7 @@ createPath = (allNodes, pick) ->
 
 selectWithWeights = (weights) ->
     sum = M.sum weights
-    return random(#weights) if sum == 0
+    assert sum != 0
          
     r = random!
     accum = 0
@@ -78,7 +78,7 @@ class ACO extends Scene
             tick_duration: 0.02
             step: ->
                 allNodes = @nodes
-                defaultPheromone = 0
+                defaultPheromone = 1
                 antCount = 10  
                 alpha = 1
                 beta = 2
