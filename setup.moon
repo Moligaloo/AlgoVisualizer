@@ -16,7 +16,7 @@ with love
         scene\mousemoved x,y
 
     .mousereleased = ->
-        scene\mousereleased
+        scene\mousereleased!
     
     .update = (dt) ->
         scene\update dt
